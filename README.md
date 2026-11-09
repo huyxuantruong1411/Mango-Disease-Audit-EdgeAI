@@ -110,10 +110,10 @@ Recent deep learning studies on the benchmark **MangoLeafBD** dataset ($N = 4,00
 
 Our repository includes a complete 16-figure Exploratory Data Analysis suite (`results/figures/eda/`) comparing `MangoLeafBD` ($N=4,000$) and `MLDID` ($N=3,000$):
 
-| `MangoLeafBD` Sample & ROI Segmentation Gallery | `MLDID` External Dataset Sample & ROI Gallery |
+| `MangoLeafBD` Sample & Geometry / Quality Gallery | `MLDID` External Dataset Sample & Geometry Gallery |
 | :---: | :---: |
-| ![MangoLeafBD Samples](results/figures/eda/MangoLeafBD_EDA_Fig6_SampleGallery.png) | ![MLDID Samples](results/figures/eda/MLDID_EDA_Fig6_SampleGallery.png) |
-| ![MangoLeafBD ROI Segmentation](results/figures/eda/MangoLeafBD_EDA_Fig7_ROISegmentationGallery.png) | ![MangoLeafBD Near-Duplicate Clusters](results/figures/eda/MangoLeafBD_EDA_Fig8_DuplicateClusterPairs.png) |
+| ![MangoLeafBD Samples](results/figures/eda/MangoLeafBD_07_sample_gallery.png) | ![MLDID Samples](results/figures/eda/MLDID_07_sample_gallery.png) |
+| ![MangoLeafBD Geometry](results/figures/eda/MangoLeafBD_03_image_geometry.png) | ![MLDID Geometry](results/figures/eda/MLDID_03_image_geometry.png) |
 
 ---
 

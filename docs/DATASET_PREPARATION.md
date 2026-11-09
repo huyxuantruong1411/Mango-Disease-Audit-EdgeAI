@@ -103,11 +103,11 @@ A foundational finding of our study is that `MangoLeafBD` contains substantial n
 
 ### 4.2 Visual EDA Gallery (`results/figures/eda/`)
 All 16 high-resolution EDA plots are stored in `results/figures/eda/`:
-- `MangoLeafBD_EDA_Fig1_ClassAndResolution.png` & `MLDID_EDA_Fig1_ClassAndResolution.png`
-- `MangoLeafBD_EDA_Fig2_AuditAndSplitLeakage.png` & `MLDID_EDA_Fig2_AuditAndSplitLeakage.png`
-- `MangoLeafBD_EDA_Fig3_OpticalQualityMetrics.png` & `MLDID_EDA_Fig3_OpticalQualityMetrics.png`
-- `MangoLeafBD_EDA_Fig4_ColorAndForegroundStats.png` & `MLDID_EDA_Fig4_ColorAndForegroundStats.png`
-- `MangoLeafBD_EDA_Fig5_CorrelationAndPCA.png` & `MLDID_EDA_Fig5_CorrelationAndPCA.png`
-- `MangoLeafBD_EDA_Fig6_SampleGallery.png` & `MLDID_EDA_Fig6_SampleGallery.png`
-- `MangoLeafBD_EDA_Fig7_ROISegmentationGallery.png` & `MLDID_EDA_Fig7_ROISegmentationGallery.png`
-- `MangoLeafBD_EDA_Fig8_DuplicateClusterPairs.png` & `MLDID_EDA_Fig8_DuplicateClusterPairs.png`
+- [`MangoLeafBD_01_class_distribution.png`](../results/figures/eda/MangoLeafBD_01_class_distribution.png) & [`MLDID_01_class_distribution.png`](../results/figures/eda/MLDID_01_class_distribution.png)
+- [`MangoLeafBD_02_class_by_split.png`](../results/figures/eda/MangoLeafBD_02_class_by_split.png) & [`MLDID_02_class_by_split.png`](../results/figures/eda/MLDID_02_class_by_split.png)
+- [`MangoLeafBD_03_image_geometry.png`](../results/figures/eda/MangoLeafBD_03_image_geometry.png) & [`MLDID_03_image_geometry.png`](../results/figures/eda/MLDID_03_image_geometry.png)
+- [`MangoLeafBD_04_quality_by_class.png`](../results/figures/eda/MangoLeafBD_04_quality_by_class.png) & [`MLDID_04_quality_by_class.png`](../results/figures/eda/MLDID_04_quality_by_class.png)
+- [`MangoLeafBD_05_pixel_distributions.png`](../results/figures/eda/MangoLeafBD_05_pixel_distributions.png) & [`MLDID_05_pixel_distributions.png`](../results/figures/eda/MLDID_05_pixel_distributions.png)
+- [`MangoLeafBD_06_color_by_class.png`](../results/figures/eda/MangoLeafBD_06_color_by_class.png) & [`MLDID_06_color_by_class.png`](../results/figures/eda/MLDID_06_color_by_class.png)
+- [`MangoLeafBD_07_sample_gallery.png`](../results/figures/eda/MangoLeafBD_07_sample_gallery.png) & [`MLDID_07_sample_gallery.png`](../results/figures/eda/MLDID_07_sample_gallery.png)
+- [`MangoLeafBD_08_metric_correlation.png`](../results/figures/eda/MangoLeafBD_08_metric_correlation.png) & [`MLDID_08_metric_correlation.png`](../results/figures/eda/MLDID_08_metric_correlation.png)
