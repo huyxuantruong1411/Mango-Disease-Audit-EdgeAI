@@ -1,0 +1,19 @@
+% Auto-generated from locked Version 5 (v5) CSV table: Table7_External_Dataset_Validation.csv
+\begin{table*}[htbp]
+\centering
+\caption{External cross-dataset generalization from MangoLeafBD (Bangladesh) to MLDID (India, $N=3,000$ across 5 shared classes) with Canonical Leaf Pose Normalization and Block-Shrinkage CORAL.}
+\label{tab:external_mldid}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrr}
+\toprule
+\textbf{Protocol} & \textbf{Adaptation} & \textbf{Samples} & \textbf{Shared classes} & \textbf{Accuracy (\%)} & \textbf{Balanced Acc (\%)} & \textbf{Macro-F1} & \textbf{95\% Bootstrap CI} & \textbf{Source view} \\
+\midrule
+Source-view in-domain Group-Split Test & None; source-only training & 455 & 5 & 99.34 & 99.3 & 0.9929 & [0.9841, 1.0000] & adaptive \\
+MLDID source-view Zero-Shot & No target statistics used; source-trained shared-label model & 3000 & 5 & 31.27 & 31.27 & 0.2886 & [0.2767, 0.3005] & adaptive \\
+Canonical-pose in-domain Group-Split Test & Same source/target transform; color mode=lab\_l & 455 & 5 & 96.04 & 95.68 & 0.9589 & [0.9394, 0.9762] & canonical\_pose \\
+MLDID Canonical-pose Zero-Shot & No target stats used; PCA-axis pose + foreground L* mode=lab\_l & 3000 & 5 & 42.63 & 42.63 & 0.4395 & [0.4247, 0.4527] & canonical\_pose \\
+MLDID Canonical-pose + CORAL & Transductive; unsupervised covariance alignment on compact features & 3000 & 5 & 31.43 & 31.43 & 0.3274 & [0.3121, 0.3424] & canonical\_pose + CORAL \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

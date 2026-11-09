@@ -1,0 +1,9 @@
+Class ID,Class Name,Total Images,Unique Specimen Clusters (pHash<=6 | HSV cosine>=0.992),Near-Duplicate / Aug-Mix Ratio (%),Dominant Resolution,Random-Split Test Leakage (%)
+0,Anthracnose,500,352,29.6,320x240,39.0
+1,Bacterial_Canker,500,275,45.0,240x320,39.0
+2,Cutting_Weevil,500,31,93.8,240x240,39.0
+3,Die_Back,500,95,81.0,240x240,39.0
+4,Gall_Midge,500,437,12.6,320x240,39.0
+5,Healthy,500,469,6.2,240x320,39.0
+6,Powdery_Mildew,500,427,14.6,240x240,39.0
+7,Sooty_Mold,500,468,6.4,320x240,39.0

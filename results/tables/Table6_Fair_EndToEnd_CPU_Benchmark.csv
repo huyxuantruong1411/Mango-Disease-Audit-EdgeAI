@@ -1,0 +1,6 @@
+Model / Pipeline,Params / Disk Size,Group-Split Acc (%),Group-Split Macro-F1,95% Bootstrap CI,End-to-End Mean (ms/img),End-to-End p50 (ms),End-to-End p95 (ms),Throughput (img/s),Process RSS RAM (MB),External MLDID Zero-Shot Acc (%),External MLDID Zero-Shot Macro-F1,Best Val Macro-F1,Best Epoch,External samples,External shared classes,Status
+Proposed Stage-1 Only (HSV/LAB+LBP+5Patch+MGCT+HOG-PCA -> LR),<0.02M (480.2 KB),97.91,0.9789,"[0.9655, 0.9891]",21.58,20.43,32.47,46.3,1859.4,42.63,0.4395,,,3000,5,SUCCESS
+Proposed Two-Stage Confidence-Gated (tau=0.65),<0.05M (4.0 MB),98.47,0.9836,"[0.9712, 0.9932]",21.74,20.58,32.93,46.0,1859.4,42.63,0.4395,0.9817,,3000,5,SUCCESS
+Transfer-Learned mobilenet_v3_small (End-to-End CPU),1.53M (5.9 MB),99.86,0.9986,"[0.9966, 1.0000]",48.7,26.78,133.52,20.5,1356.9,50.73,0.544,0.9987,5,3000,5,SUCCESS
+Transfer-Learned mobilenet_v2 (End-to-End CPU),2.23M (8.8 MB),100.0,1.0,"[1.0000, 1.0000]",56.42,41.18,117.99,17.7,1359.8,53.93,0.5591,1.0,3,3000,5,SUCCESS
+Transfer-Learned resnet50 (End-to-End CPU),23.52M (90.0 MB),99.86,0.9985,"[0.9958, 1.0000]",272.04,210.88,682.54,3.7,1668.9,63.97,0.658,1.0,2,3000,5,SUCCESS

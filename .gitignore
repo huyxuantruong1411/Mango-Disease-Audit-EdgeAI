@@ -1,0 +1,47 @@
+# Raw image datasets and archives (excluded from Git; see docs/DATASET_PREPARATION.md)
+data/
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# Large feature caches and deep learning checkpoints
+*.npz
+*.pth
+*.pt
+*.onnx
+*.h5
+feature_cache/
+cache_MANGO/
+
+# Python bytecode, virtual environments, and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Testing and IDE caches
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Explicitly track locked v5 research tables, figures, audited manifests, and lightweight joblib models
+!results/tables/*.csv
+!results/eda/*.csv
+!results/manifests/*.csv
+!results/figures/*.png
+!results/figures/eda/*.png
+!results/models/*.joblib

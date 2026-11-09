@@ -1,0 +1,21 @@
+% Auto-generated from locked Version 5 (v5) CSV table: Table5_MultiSeverity_Robustness.csv
+\begin{table*}[htbp]
+\centering
+\caption{Multi-severity optical and sensor perturbation robustness comparing raw baseline, unconditional CLAHE, conditional blur control, and proposed quality-gated preprocessing.}
+\label{tab:perturbation_robustness}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Perturbation Scenario} & \textbf{1. Baseline Raw (HSV+LBP+HOG)} & \textbf{2. Unconditional CLAHE} & \textbf{3. Conditional Blur Control} & \textbf{4. Proposed Quality-Gated} & \textbf{Gain vs Raw} & \textbf{Selected view} \\
+\midrule
+Clean held-out test (sigma=0) & 0.8519 & 0.9841 & 0.8519 & 0.9836 & 0.1317 & adaptive \\
+Gaussian sensor noise (sigma=5) & 0.7079 & 0.8045 & 0.7079 & 0.9249 & 0.217 & adaptive \\
+Gaussian sensor noise (sigma=10) & 0.5114 & 0.4207 & 0.5758 & 0.8647 & 0.3533 & adaptive \\
+Gaussian sensor noise (sigma=20) & 0.3737 & 0.2373 & 0.3641 & 0.6104 & 0.2367 & adaptive \\
+Synthetic specular glare (radius=22 px) & 0.7601 & 0.9818 & 0.7601 & 0.9812 & 0.2211 & adaptive \\
+Synthetic specular glare (radius=35 px) & 0.7412 & 0.9785 & 0.7412 & 0.977 & 0.2359 & adaptive \\
+Low-light contrast loss (-40\%) & 0.6641 & 0.8071 & 0.6641 & 0.8012 & 0.1371 & adaptive \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

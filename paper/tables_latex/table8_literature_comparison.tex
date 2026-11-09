@@ -1,0 +1,24 @@
+% Auto-generated from locked Version 5 (v5) CSV table: Table8_Published_Literature_Comparison.csv
+\begin{table*}[htbp]
+\centering
+\caption{Comparison with recent mango leaf disease classification literature (2023--2026) across split audit rigor, parameter footprint, CPU latency, and external validation.}
+\label{tab:literature_comparison}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+\textbf{Study / Model} & \textbf{Architecture \& Complexity} & \textbf{Split Protocol \& Leakage Audit} & \textbf{Params / Model Size} & \textbf{Test Acc (\%)} & \textbf{Macro-F1 (\%)} & \textbf{CPU Latency (ms/img)} & \textbf{External Test (MLDID, N=3,000)} \\
+\midrule
+Ahmed et al. (Data in Brief, 2023) & Custom 7-Layer CNN & Random Split (Un-audited 39\% leakage) & Multi-million & 95.50\% & — & Not reported & Not evaluated \\
+WO-RNN + ResNet-150 (PJOES, 2025) & ResNet-150 + Whale-Optimized RNN & Random Split 80:20 (Un-audited) & >60M params & 96.00\% & 93.00\% & Heavy GPU/CPU & Not evaluated \\
+Mehdi (MobileNetV2, 2025) & MobileNetV2 Transfer Learning & Random Split 80:20 (Un-audited) & 2.23M (8.8 MB) & 96.38\% & — & Not reported & Not evaluated \\
+Multi-Crop GAP-BN CNN (PMC12823699, 2025) & Deep CNN + GAP + BatchNorm & Random Split 80:20 (Un-audited) & Multi-million & 97.80\% & 97.60\% & GPU-dependent & Not evaluated \\
+XLeaf-Net (Future Technology, 2026) & Lightweight Custom CNN + Grad-CAM & Random Split 70:15:15 (Not specimen-independent) & Compact CNN & — & — & Not profiled on CPU & Not evaluated \\
+Proposed Stage-1 (M11, Segmented No-BG) & 7-Branch + Block-PCA -> OvR LR & Leak-Free Group-Split + Background Removed & <0.02M (480.2 KB) & 96.37\% & 95.49\% & 28.30 ms & — \\
+Proposed Stage-1 (M10, Adaptive View) & 7-Branch + Block-PCA -> OvR LR & Leak-Free Group-Split (0\% leakage) & <0.02M (480.2 KB) & 97.91\% & 97.89\% & 21.58 ms & 42.63\% (0.4395 F1) \\
+Proposed Two-Stage (tau=0.65, Val-Selected) & Stage-1 LR + 1.53\% Routed Stage-2 & Leak-Free Group-Split (0\% leakage) & <0.05M (4.0 MB) & 98.47\% & 98.36\% & 21.74 ms & 99.34\% (In-domain 5C) \\
+Proposed Two-Stage (tau=0.85, High-Sens.) & Stage-1 LR + 4.32\% Routed Stage-2 & Leak-Free Group-Split (0\% leakage) & <0.05M (4.0 MB) & 98.74\% & 98.59\% & 22.10 ms & AURC = 0.00151 \\
+Proposed Two-Stage (Random-Split Ref.) & Stage-1 LR + 1.50\% Routed Stage-2 & Standard Random-Split (Direct Reference) & <0.05M (4.0 MB) & 99.00\% & 99.00\% & 21.74 ms & ECE = 0.0106 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

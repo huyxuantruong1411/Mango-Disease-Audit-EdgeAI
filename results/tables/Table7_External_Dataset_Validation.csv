@@ -1,0 +1,6 @@
+Protocol,Adaptation,Samples,Shared classes,Accuracy (%),Balanced Acc (%),Macro-F1,95% Bootstrap CI,Source view
+Source-view in-domain Group-Split Test,None; source-only training,455,5,99.34,99.3,0.9929,"[0.9841, 1.0000]",adaptive
+MLDID source-view Zero-Shot,No target statistics used; source-trained shared-label model,3000,5,31.27,31.27,0.2886,"[0.2767, 0.3005]",adaptive
+Canonical-pose in-domain Group-Split Test,Same source/target transform; color mode=lab_l,455,5,96.04,95.68,0.9589,"[0.9394, 0.9762]",canonical_pose
+MLDID Canonical-pose Zero-Shot,No target stats used; PCA-axis pose + foreground L* mode=lab_l,3000,5,42.63,42.63,0.4395,"[0.4247, 0.4527]",canonical_pose
+MLDID Canonical-pose + CORAL,Transductive; unsupervised covariance alignment on compact features,3000,5,31.43,31.43,0.3274,"[0.3121, 0.3424]",canonical_pose + CORAL

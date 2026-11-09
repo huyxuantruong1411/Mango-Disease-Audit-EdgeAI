@@ -1,0 +1,112 @@
+# Locked Version 5 (v5) Hyperparameter & Experimental Configuration
+# Repository: Mango-Disease-Audit-EdgeAI (Package: mango_edge_cv)
+
+project:
+  name: "Mango-Disease-Audit-EdgeAI"
+  alias: "MangoLeaf-LeakFree-EdgeCV"
+  package: "mango_edge_cv"
+  version: "1.0.0"
+  seed: 20261022
+  manifest_schema: "manifest-v6-mango-mad-lut-fastfg-blockcoral"
+  feature_cache_version: "handcrafted-v8-mango-mad-lut-fastfg-blockcoral"
+
+datasets:
+  main_track: "MANGO"
+  main_dataset_name: "MangoLeafBD Dataset"
+  main_total_images: 4000
+  main_num_classes: 8
+  main_classes:
+    - "Anthracnose"
+    - "Bacterial_Canker"
+    - "Cutting_Weevil"
+    - "Die_Back"
+    - "Gall_Midge"
+    - "Healthy"
+    - "Powdery_Mildew"
+    - "Sooty_Mold"
+  external_dataset_name: "MLDID (Raw Images of Five Class Resized)"
+  external_total_images: 3000
+  external_num_shared_classes: 5
+  external_shared_classes:
+    - "Anthracnose"
+    - "Bacterial_Canker"
+    - "Die_Back"
+    - "Gall_Midge"
+    - "Healthy"
+
+audit:
+  phash_dct_size: 32
+  phash_lowfreq_block: 8
+  phash_hamming_threshold: 6
+  hsv_roi_crop_fraction: 0.60
+  hsv_hist_bins: [12, 8]
+  hsv_cosine_threshold: 0.992
+  group_kfold_splits: 5
+  test_fold: 0
+  val_fold: 1
+  train_folds: [2, 3, 4]
+  expected_unique_clusters: 2554
+  expected_random_split_leakage_pct: 39.00
+
+preprocessing:
+  input_size: 256
+  feature_grid_size: 128
+  center_crop_ratio: 0.88
+  shortcut_crop_ratio: 0.86
+  mad_noise_sigma_low: 5.5
+  mad_noise_sigma_high: 10.0
+  glare_tau_v: 238
+  glare_tau_s: 38
+  glare_ratio_min: 0.003
+  glare_ratio_max: 0.22
+  fg_contrast_std_thresh: 38.0
+  fg_dynamic_range_thresh: 132.0
+  clahe_clip_limit: 1.55
+  clahe_grid_size: [8, 8]
+  canonical_color_mode: "lab_l"
+
+features:
+  hog_backend: "numpy_sobel_vectorized_shared_gradient"
+  branch_dimensions:
+    hsv: 52
+    lab: 57
+    lbp: 28
+    patch5: 45
+    q: 7
+    mgct: 50
+    hog: 1764
+  raw_total_dimensions: 2003
+  non_hog_dimensions: 239
+  hog_pca_components: 64
+  hog_energy_weight: 0.45
+  compressed_total_dimensions: 303
+
+model:
+  stage1:
+    c_grid: [0.02, 0.05, 0.15, 0.5, 1.0, 2.5]
+    class_weight: "balanced"
+    max_iter: 1500
+    selected_temperature: 0.758
+    selected_view_mode: "adaptive"
+  stage2:
+    svm_c: 3.0
+    svm_kernel: "rbf"
+    mlp_hidden: [128]
+    mlp_alpha: 0.5
+    knn_neighbors: 7
+    knn_metric: "cosine"
+    ensemble_weights:
+      svm: 0.55
+      mlp: 0.30
+      knn: 0.15
+    stage_blend:
+      stage1: 0.30
+      stage2: 0.70
+  gating:
+    route_penalty: 0.0002
+    candidate_thresholds: [0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90]
+    validation_selected_tau: 0.65
+    high_sensitivity_tau: 0.85
+  coral:
+    shrinkage_reg: 0.35
+    identity_anchor: 0.20

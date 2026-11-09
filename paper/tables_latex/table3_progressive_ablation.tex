@@ -1,0 +1,28 @@
+% Auto-generated from locked Version 5 (v5) CSV table: Table3_Progressive_Ablation_Study.csv
+\begin{table*}[htbp]
+\centering
+\caption{Progressive ablation study ($M_1$--$M_{11}$) demonstrating raw HOG dimensionality dilution ($M_4$: $86.61\%$) and Energy-Balanced Block-PCA recovery ($M_{10}$: $97.91\%$).}
+\label{tab:progressive_ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+\textbf{Configuration} & \textbf{Dims} & \textbf{3-Fold Train Group-CV F1} & \textbf{Test Acc (\%)} & \textbf{Macro-Precision} & \textbf{Macro-Recall} & \textbf{Test Macro-F1} & \textbf{95\% Bootstrap CI} & \textbf{McNemar p-val} & \textbf{Estimated Relative Latency (proxy)} \\
+\midrule
+M1. HSV Only (OvR LR) & 52 & 0.8670 $\pm$ 0.0181 & 90.38 & 0.9008 & 0.9012 & 0.8997 & [0.8763, 0.9231] & 0.0589 & 0.61x \\
+M2. HSV + Fast Multi-Scale LBP (OvR LR) & 80 & 0.9548 $\pm$ 0.0103 & 97.35 & 0.9764 & 0.9718 & 0.9739 & [0.9607, 0.9848] & 0.0 & 0.81x \\
+M3. HSV + Vectorized Sobel HOG (OvR LR) & 1816 & 0.7692 $\pm$ 0.0441 & 83.4 & 0.8526 & 0.781 & 0.7823 & [0.7475, 0.8172] & 0.0001 & 0.85x \\
+M4. Baseline: HSV + LBP + HOG (OvR LR) & 1844 & 0.8156 $\pm$ 0.0396 & 86.61 & 0.882 & 0.8356 & 0.8453 & [0.8122, 0.8770] & 0.3018 & 1.04x \\
+M5. M4 + CIE LAB Color Space & 1901 & 0.8720 $\pm$ 0.0382 & 90.66 & 0.9186 & 0.8848 & 0.8948 & [0.8658, 0.9209] & 0.0001 & 1.34x \\
+M6. M5 + 5-Patch Spatial Moments & 1946 & 0.8907 $\pm$ 0.0344 & 92.19 & 0.9313 & 0.898 & 0.9079 & [0.8814, 0.9314] & 0.0 & 1.51x \\
+M7a. M6 + Specular Glare Inpainting Only & 1946 & 0.8894 $\pm$ 0.0337 & 92.33 & 0.9324 & 0.8996 & 0.9092 & [0.8824, 0.9330] & 0.0 & 2.58x \\
+M7b. M6 + CLAHE Contrast Only & 1946 & 0.8824 $\pm$ 0.0362 & 92.19 & 0.9307 & 0.8978 & 0.9074 & [0.8797, 0.9312] & 0.0 & 1.70x \\
+M7c. M6 + Morphological Top/Black-Hat Only & 1946 & 0.8892 $\pm$ 0.0357 & 92.05 & 0.9276 & 0.8967 & 0.9053 & [0.8784, 0.9297] & 0.0 & 2.06x \\
+M7d. M6 + Quality-Gated Conditional Preproc & 1946 & 0.8735 $\pm$ 0.0287 & 91.07 & 0.9205 & 0.8862 & 0.8964 & [0.8696, 0.9216] & 0.0016 & 1.60x \\
+M8. M7d + Image Quality Vector q & 1953 & 0.8711 $\pm$ 0.0302 & 90.93 & 0.9187 & 0.885 & 0.8951 & [0.8680, 0.9198] & 0.0022 & 1.67x \\
+M9. M8 + Multi-Grid Chromatic-Texture (MGCT) & 2003 & 0.8935 $\pm$ 0.0291 & 92.05 & 0.9309 & 0.918 & 0.9236 & [0.9012, 0.9423] & 0.0001 & 1.87x \\
+M10. M9 + Block-PCA Compression (Proposed Stage-1) & 303 & 0.9713 $\pm$ 0.0064 & 97.91 & 0.9824 & 0.9758 & 0.9789 & [0.9656, 0.9891] & 0.0 & 1.85x \\
+M11. M10 on Segmented Organ ROI (No-BG Audit) & 303 & 0.9375 $\pm$ 0.0078 & 96.37 & 0.9537 & 0.957 & 0.9549 & [0.9363, 0.9715] & 0.0 & 2.44x \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this codebase, audited manifests, or experimental benchmarks in your research, please cite the following work."
+title: "Auditing Near-Duplicate Leakage and Background Shortcuts in Mango Leaf Disease Classification: An Interpretable, Confidence-Gated Classical Vision Pipeline for CPU Edge Deployment"
+type: software
+authors:
+  - family-names: "Truong"
+    given-names: "Huy Xuan"
+repository-code: "https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI"
+url: "https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI"
+license: MIT
+version: "1.0.0"
+date-released: "2026-11-10"
+keywords:
+  - mango leaf disease classification
+  - MangoLeafBD
+  - MLDID
+  - near-duplicate data leakage
+  - shortcut learning audit
+  - interpretable computer vision
+  - Block-PCA
+  - confidence-gated routing
+  - edge AI
+  - cross-dataset generalization

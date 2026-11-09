@@ -1,0 +1,19 @@
+% Auto-generated from locked Version 5 (v5) CSV table: Table2_Background_Shortcut_Audit.csv
+\begin{table*}[htbp]
+\centering
+\caption{Five-view studio background and framing shortcut audit under the leak-free group-disjoint split protocol.}
+\label{tab:background_shortcut}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Track} & \textbf{Input Representation View} & \textbf{Group-Split Test Acc (\%)} & \textbf{Group-Split Macro-F1} \\
+\midrule
+MANGO & 1. Whole ROI (Center-Crop r=0.86) & 98.33 & 0.9833 \\
+MANGO & 2. Segmented Organ Only (Background Masked Out) & 94.84 & 0.944 \\
+MANGO & 3. Background Only (Organ Masked Out) & 94.84 & 0.9396 \\
+MANGO & 4. Four Corner Patches Only (32x32 Borders) & 85.08 & 0.8332 \\
+MANGO & 5. Image File Metadata Only (Size + Global Stats) & 59.14 & 0.5742 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

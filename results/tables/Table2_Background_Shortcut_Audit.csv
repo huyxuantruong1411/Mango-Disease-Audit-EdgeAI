@@ -1,0 +1,6 @@
+Track,Input Representation View,Group-Split Test Acc (%),Group-Split Macro-F1
+MANGO,1. Whole ROI (Center-Crop r=0.86),98.33,0.9833
+MANGO,2. Segmented Organ Only (Background Masked Out),94.84,0.944
+MANGO,3. Background Only (Organ Masked Out),94.84,0.9396
+MANGO,4. Four Corner Patches Only (32x32 Borders),85.08,0.8332
+MANGO,5. Image File Metadata Only (Size + Global Stats),59.14,0.5742
