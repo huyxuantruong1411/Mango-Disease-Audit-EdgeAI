@@ -1,113 +1,63 @@
-# Dataset Preparation & Exploratory Data Analysis (EDA)
+# Dataset Preparation, Geometry Confounding, and Specimen Audit Guide
 
-This document provides step-by-step instructions for downloading, organizing, auditing, and exploring the two mango leaf disease datasets evaluated in **Mango-Disease-Audit-EdgeAI**:
-1. **Primary Benchmark (`MangoLeafBD`)**: $N = 4,000$ images across 8 classes (Bangladesh).
-2. **External Cross-Dataset Benchmark (`MLDID` / `Resize mango leaf disease`)**: $N = 3,000$ images across 5 shared classes (India).
-
-> [!IMPORTANT]
-> Raw image archives are excluded from Git tracking via `.gitignore` to keep the repository lightweight. However, all pre-computed **audited manifests (`results/manifests/manifest_MANGO_audited.csv`)**, **EDA summary tables (`results/eda/*.csv`)**, and **16 publication-grade EDA figures (`results/figures/eda/*.png`)** are committed directly in the repository for immediate inspection and verification.
+This document details the acquisition, directory layout, physical geometry characteristics, and specimen-cluster auditing procedure for the two mango foliar pathology benchmarks evaluated in this study: **`MangoLeafBD`** ($N = 4,000$, Bangladesh) and **`MLDID`** ($N = 3,000$, India).
 
 ---
 
-## 1. Benchmark Datasets & Official Sources
+## 1. Primary Benchmark: `MangoLeafBD` ($N = 4,000$, 8 Classes)
 
-### 1.1 Primary Dataset: `MangoLeafBD` ($N = 4,000$, 8 Classes)
-- **Authors**: S. I. Ahmed et al. (*Data in Brief*, Vol. 47, 108941, 2023)
-- **DOI**: [`10.1016/j.dib.2023.108941`](https://doi.org/10.1016/j.dib.2023.108941) / Mendeley Data: [`10.17632/hxsnvwty3r.1`](https://doi.org/10.17632/hxsnvwty3r.1)
-- **Geographic Origin**: Four mango orchards across Bangladesh (Sher-e-Bangla Agricultural University, Kashimpur, Rajshahi, and BARI).
-- **Class Balance**: Exactly $500$ images per class across $8$ categories ($4,000$ total):
-  1. `Anthracnose` ($500$)
-  2. `Bacterial_Canker` (`Bacterial Canker`, $500$)
-  3. `Cutting_Weevil` (`Cutting Weevil`, $500$)
-  4. `Die_Back` (`Die Back`, $500$)
-  5. `Gall_Midge` (`Gall Midge`, $500$)
-  6. `Healthy` ($500$)
-  7. `Powdery_Mildew` (`Powdery Mildew`, $500$)
-  8. `Sooty_Mold` (`Sooty Mould`, $500$)
+- **Source Citation:** Ali et al. (2022), *"MangoLeafBD: A comprehensive image dataset to classify diseased and healthy mango leaves"*, Mendeley Data / *Data in Brief*.
+- **Class Balance:** Exactly $500$ JPEG images per class across $8$ categories ($4,000$ images total):
+  1. `Anthracnose` ($500$ images $\to 352$ unique specimen clusters, $29.6\%$ near-duplicate ratio)
+  2. `Bacterial_Canker` ($500$ images $\to 275$ unique specimen clusters, $45.0\%$ near-duplicate ratio)
+  3. `Cutting_Weevil` ($500$ images $\to 31$ unique specimen clusters, **$93.8\%$ near-duplicate ratio**)
+  4. `Die_Back` ($500$ images $\to 95$ unique specimen clusters, **$81.0\%$ near-duplicate ratio**)
+  5. `Gall_Midge` ($500$ images $\to 437$ unique specimen clusters, $12.6\%$ near-duplicate ratio)
+  6. `Healthy` ($500$ images $\to 469$ unique specimen clusters, $6.2\%$ near-duplicate ratio)
+  7. `Powdery_Mildew` ($500$ images $\to 427$ unique specimen clusters, $14.6\%$ near-duplicate ratio)
+  8. `Sooty_Mold` ($500$ images $\to 468$ unique specimen clusters, $6.4\%$ near-duplicate ratio)
 
-### 1.2 External Cross-Dataset Benchmark: `MLDID` ($N = 3,000$, 5 Shared Classes)
-- **Dataset Name**: Mango Leaf Disease Identification Dataset (`MLDID`, distributed as `Resize mango leaf disease`)
-- **DOI / Source**: Mendeley Data [`10.17632/jpwtpv2c4s.1`](https://doi.org/10.17632/jpwtpv2c4s.1)
-- **Geographic Origin**: Indian orchard field and semi-controlled captures.
-- **Class Balance**: Exactly $600$ images per class across $5$ shared categories ($3,000$ total):
-  1. `Anthracnose` ($600$)
-  2. `Bacterial_Canker` ($600$)
-  3. `Die_Back` ($600$)
-  4. `Gall_Midge` ($600$)
-  5. `Healthy` ($600$)
+![Figure 15: Class-Wise Specimen Morphology, Resolution Confounding, and Chromatic Statistics on MangoLeafBD](../results/figures/Fig15_EDA_MangoLeafBD_EightClass_Specimens_and_Geometry.png)
+
+### 1.1 Native Resolution and Aspect-Ratio Confounding ([`MangoLeafBD_ResolutionSummary.csv`](../results/eda/MangoLeafBD_ResolutionSummary.csv))
+
+A critical finding of our Exploratory Data Analysis (`src/mango_edge_cv/eda.py`) is that `MangoLeafBD` images were captured across three distinct aspect ratios that correlate strongly with disease labels:
+- **Landscape `320x240` ($1,415$ images, $35.38\%$):** Dominates `Gall_Midge` and `Sooty_Mold`.
+- **Square `240x240` ($1,187$ images, $29.68\%$):** Dominates `Cutting_Weevil`, `Die_Back`, `Powdery_Mildew`, and `Anthracnose`.
+- **Portrait `240x320` ($499$ images), `240x245` ($462$ images), `240x293` ($310$ images):** Dominates `Bacterial_Canker` and `Healthy`.
 
 ---
 
-## 2. Expected Local Directory Layout
+## 2. External Cross-Dataset Benchmark: `MLDID` ($N = 3,000$, 5 Shared Classes)
 
-Place or symlink the extracted datasets under `data/` at the repository root (or pass custom paths via `--mango-root` and `--mldid-root` to `scripts/run_full_pipeline.py`):
+- **Dataset Overview:** Independent mango leaf disease collection captured in India (`Resize mango leaf disease`), comprising $3,000$ images ($600$ images per class) across the $5$ shared classes: `Anthracnose`, `Bacterial_Canker`, `Die_Back`, `Gall_Midge`, and `Healthy`.
+- **Standardized Geometry ([`MLDID_ResolutionSummary.csv`](../results/eda/MLDID_ResolutionSummary.csv)):** All $3,000$ images are standardized to **$512\times512$ ($100.0\%$)** with arbitrary leaf orientations (vertical, diagonal, and horizontal poses) and distinct illumination/sharpness profiles compared to `MangoLeafBD`.
+
+![Figure 16: Cross-Dataset Luminance Contrast and Optical Sharpness Shift (MangoLeafBD vs. MLDID)](../results/figures/Fig16_EDA_CrossDataset_Distribution_Shift_MangoLeafBD_vs_MLDID.png)
+
+---
+
+## 3. Expected Directory Structure for Full Raw Image Execution
+
+Note that **you do not need the raw image folders to verify the locked Version 5 results or run inference demos**, because the repository already ships with the audited manifest ([`results/manifests/manifest_MANGO_audited.csv`](../results/manifests/manifest_MANGO_audited.csv)), all locked CSV tables ([`results/tables/`](../results/tables/)), and the pretrained `joblib` models ([`results/models/`](../results/models/)).
+
+To re-extract all $7,000$ images from scratch via [`scripts/run_full_audit_and_ablation.py`](../scripts/run_full_audit_and_ablation.py), place the raw datasets at:
 
 ```text
-Mango-Disease-Audit-EdgeAI/
-└── data/
-    ├── MangoLeafBD/
-    │   ├── Anthracnose/          # 500 .jpg images
-    │   ├── Bacterial Canker/     # 500 .jpg images
-    │   ├── Cutting Weevil/       # 500 .jpg images
-    │   ├── Die Back/             # 500 .jpg images
-    │   ├── Gall Midge/           # 500 .jpg images
-    │   ├── Healthy/              # 500 .jpg images
-    │   ├── Powdery Mildew/       # 500 .jpg images
-    │   └── Sooty Mould/          # 500 .jpg images
-    └── MLDID/
-        ├── Anthracnose/          # 600 .jpg images
-        ├── Bacterial Canker/     # 600 .jpg images
-        ├── Die Back/             # 600 .jpg images
-        ├── Gall Midge/           # 600 .jpg images
-        └── Healthy/              # 600 .jpg images
+data/
+├── MangoLeafBD/
+│   ├── Anthracnose/
+│   ├── Bacterial Canker/
+│   ├── Cutting Weevil/
+│   ├── Die Back/
+│   ├── Gall Midge/
+│   ├── Healthy/
+│   ├── Powdery Mildew/
+│   └── Sooty Mould/
+└── MLDID/
+    ├── Anthracnose/
+    ├── Bacterial Canker/
+    ├── Die Back/
+    ├── Gall Midge/
+    └── Healthy/
 ```
-
-> [!NOTE]
-> The label standardizer (`mango_edge_cv.config.standardize_label`) automatically normalizes folder names regardless of spaces, underscores, or British/American spelling (`Sooty Mould` $\to$ `Sooty_Mold`, `Bacterial Canker` $\to$ `Bacterial_Canker`).
-
----
-
-## 3. Specimen-Cluster Leakage Audit (`MangoLeafBD`)
-
-A foundational finding of our study is that `MangoLeafBD` contains substantial near-duplicate and zoom/rotation-augmented sibling groups that were generated prior to public release. Using our graph connected-component audit (`pHash` Hamming distance $\le 6$ or 36-bin HSV cosine similarity $\ge 0.992$), we partition all $4,000$ images into **$2,554$ disjoint specimen clusters**:
-
-| Class ID | Class Name | Total Images | Unique Specimen Clusters (`pHash<=6` \| `HSV cos>=0.992`) | Near-Duplicate / Aug-Mix Ratio (%) | Dominant Resolution | Random-Split Test Leakage (%) |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
-| 0 | `Anthracnose` | 500 | 352 | 29.6% | `320x240` | 39.0% |
-| 1 | `Bacterial_Canker` | 500 | 275 | 45.0% | `240x320` | 39.0% |
-| 2 | `Cutting_Weevil` | 500 | 31 | **93.8%** | `240x240` | 39.0% |
-| 3 | `Die_Back` | 500 | 95 | **81.0%** | `240x240` | 39.0% |
-| 4 | `Gall_Midge` | 500 | 437 | 12.6% | `320x240` | 39.0% |
-| 5 | `Healthy` | 500 | 469 | 6.2% | `240x320` | 39.0% |
-| 6 | `Powdery_Mildew` | 500 | 427 | 14.6% | `240x240` | 39.0% |
-| 7 | `Sooty_Mold` | 500 | 468 | 6.4% | `320x240` | 39.0% |
-| **Total / Mean** | **8 Classes** | **4,000** | **2,554** | **36.15%** | **Mixed** | **39.0%** |
-
-### Split Partition Summary (`results/eda/MangoLeafBD_SplitSummary.csv`)
-- **Group-Disjoint Split (`StratifiedGroupKFold`, 0% Leakage)**:
-  - `Train_Orig`: $2,693$ images ($1,720$ clusters)
-  - `Val_Orig`: $590$ images ($373$ clusters)
-  - `Test`: $717$ images ($461$ clusters)
-- **Standard Stratified Random Split (39.0% Cluster Leakage Reference)**:
-  - `Train_Orig`: $2,680$ images ($1,984$ clusters)
-  - `Val_Orig`: $520$ images ($474$ clusters)
-  - `Test`: $800$ images ($680$ clusters; $39.0\%$ share a cluster with `Train_Orig`/`Val_Orig`)
-
----
-
-## 4. Exploratory Data Analysis (EDA) & Cross-Dataset Covariate Shift
-
-### 4.1 Resolution & Aspect-Ratio Confounding (`MangoLeafBD` vs. `MLDID`)
-- **Within `MangoLeafBD` (`results/eda/MangoLeafBD_ResolutionSummary.csv`)**: Image dimensions are strongly correlated with class identity (`320x240` landscape in *Anthracnose*, *Gall Midge*, and *Sooty Mold*; `240x240` square in *Cutting Weevil*, *Die Back*, and *Powdery Mildew*; `240x320` portrait in *Bacterial Canker* and *Healthy*). Consequently, file metadata and aspect ratio alone achieve **59.14% accuracy** (Table 2, View 5 vs. 12.5% chance).
-- **Between `MangoLeafBD` and `MLDID` (`results/eda/MLDID_ResolutionSummary.csv`)**: While `MangoLeafBD` is predominantly landscape/square, `MLDID` consists almost exclusively of **portrait-oriented frames** (`240x293`, `240x270`, `240x285`; mean aspect ratio $0.82$ vs. $1.07$), rotated by $\sim 90^\circ$ relative to `MangoLeafBD`. This finding directly motivated our **Canonical Leaf Pose Normalization** (`mango_edge_cv.preprocessing.canonicalize_leaf_organ_image`), which boosts zero-shot cross-dataset accuracy from **31.27% to 42.63%** (+11.36% gain, Table 7).
-
-### 4.2 Visual EDA Gallery (`results/figures/eda/`)
-All 16 high-resolution EDA plots are stored in `results/figures/eda/`:
-- [`MangoLeafBD_01_class_distribution.png`](../results/figures/eda/MangoLeafBD_01_class_distribution.png) & [`MLDID_01_class_distribution.png`](../results/figures/eda/MLDID_01_class_distribution.png)
-- [`MangoLeafBD_02_class_by_split.png`](../results/figures/eda/MangoLeafBD_02_class_by_split.png) & [`MLDID_02_class_by_split.png`](../results/figures/eda/MLDID_02_class_by_split.png)
-- [`MangoLeafBD_03_image_geometry.png`](../results/figures/eda/MangoLeafBD_03_image_geometry.png) & [`MLDID_03_image_geometry.png`](../results/figures/eda/MLDID_03_image_geometry.png)
-- [`MangoLeafBD_04_quality_by_class.png`](../results/figures/eda/MangoLeafBD_04_quality_by_class.png) & [`MLDID_04_quality_by_class.png`](../results/figures/eda/MLDID_04_quality_by_class.png)
-- [`MangoLeafBD_05_pixel_distributions.png`](../results/figures/eda/MangoLeafBD_05_pixel_distributions.png) & [`MLDID_05_pixel_distributions.png`](../results/figures/eda/MLDID_05_pixel_distributions.png)
-- [`MangoLeafBD_06_color_by_class.png`](../results/figures/eda/MangoLeafBD_06_color_by_class.png) & [`MLDID_06_color_by_class.png`](../results/figures/eda/MLDID_06_color_by_class.png)
-- [`MangoLeafBD_07_sample_gallery.png`](../results/figures/eda/MangoLeafBD_07_sample_gallery.png) & [`MLDID_07_sample_gallery.png`](../results/figures/eda/MLDID_07_sample_gallery.png)
-- [`MangoLeafBD_08_metric_correlation.png`](../results/figures/eda/MangoLeafBD_08_metric_correlation.png) & [`MLDID_08_metric_correlation.png`](../results/figures/eda/MLDID_08_metric_correlation.png)

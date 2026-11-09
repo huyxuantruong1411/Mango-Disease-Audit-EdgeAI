@@ -440,3 +440,4 @@ def canonicalize_leaf_organ_image(
         out = _foreground_color_constancy_lab_l(out, out_mask)
     out = cv2.bitwise_and(out, out, mask=out_mask)
     return apply_adaptive_quality_preprocessing(out, foreground_mask=out_mask)
+

@@ -347,3 +347,4 @@ def coral_align_features(
         X_out[:, left:right] = Zt @ transform + mu_s
 
     return X_out.astype(np.float32)
+

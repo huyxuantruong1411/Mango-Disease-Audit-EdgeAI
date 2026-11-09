@@ -11,13 +11,22 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import joblib
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from mango_edge_cv.visualization import generate_analytical_charts_from_tables
+from mango_edge_cv.models import (
+    BlockPCACompressor,
+    CalibratedConfidenceGatedSystem,
+    _EstimatorWrapper,
+)
+from mango_edge_cv.visualization import (
+    generate_analytical_charts_from_tables,
+    plot_feature_block_attribution,
+)
 
 
 TABLE_SPECS = [
@@ -132,8 +141,25 @@ def main() -> None:
             print(f"[OK] Generated LaTeX table: paper/tables_latex/{tex_name}")
 
     generate_analytical_charts_from_tables(str(tables_dir), str(figures_dir))
+    model_path = REPO_ROOT / "results" / "models" / "proposed_twostage_gated.joblib"
+    if model_path.exists():
+        bundle = joblib.load(model_path)
+        gated_sys = bundle["model"] if isinstance(bundle, dict) and "model" in bundle else bundle
+        plot_feature_block_attribution(
+            gated_sys,
+            str(figures_dir / "Figure3_Feature_Block_Attribution.png"),
+            num_classes=8,
+            track_name="MangoLeafBD",
+        )
+
     for fig_name in [
+        "Fig03_Cluster_Distribution_and_Split_Leakage.png",
+        "Fig07b_Feature_Block_Attribution.png",
+        "Fig09_Progressive_Ablation_Trajectory_M1_M11.png",
+        "Fig11_Gate_Threshold_Sweep_and_Calibration.png",
+        "Fig12_MultiSeverity_Perturbation_Robustness.png",
         "Figure2_Audit_and_Background_Shortcuts.png",
+        "Figure3_Feature_Block_Attribution.png",
         "Figure4_Ablation_and_Confidence_Gate.png",
         "Figure7_Perturbation_Robustness_and_CrossDomain.png",
     ]:

@@ -1,24 +1,23 @@
-# Reproducibility & Verification Guide
+# Reproducibility and Verification Guide (Locked Version 5 Protocol)
 
-This guide explains how to reproduce and verify every table, figure, LaTeX asset, and model prediction in **Mango-Disease-Audit-EdgeAI** (`SEED = 20261022`), both **without** downloading raw image archives (using the committed manifests and locked Version 5 artifacts) and **with** the raw datasets (`MangoLeafBD` and `MLDID`).
+This repository enforces deterministic execution (`SEED = 20261022`) across specimen-cluster auditing, train/val/test group partitioning, feature extraction, Block-PCA projection, temperature scaling, bootstrap confidence intervals ($B = 1,000$), and exact McNemar hypothesis testing.
 
 ---
 
-## 1. Environment Setup
-
-We recommend Python `3.10+` (`3.10`–`3.13` tested). From the repository root:
+## 1. Environment Installation
 
 ```bash
-# Install core scientific dependencies and editable package
+git clone https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI.git
+cd Mango-Disease-Audit-EdgeAI
 pip install -r requirements.txt
 pip install -e .
 ```
 
 ---
 
-## 2. Instant Verification of Locked Version 5 (`v5`) Results (< 5 Seconds)
+## 2. Automated 57-Check Ground-Truth Verification (`verify_locked_results.py`)
 
-You can verify all 42 ground-truth manuscript metrics across `manifest_MANGO_audited.csv` and `Table1`–`Table7` without needing the raw image datasets:
+Run the automated verifier to confirm that all 8 CSV tables (`Table1`–`Table8`), the audited manifest (`manifest_MANGO_audited.csv`), the EDA summaries (`results/eda/*.csv`), and the pretrained model bundles (`proposed_stage1_lr.joblib` and `proposed_twostage_gated.joblib`) match the locked Version 5 numbers bit-for-bit:
 
 ```bash
 python scripts/verify_locked_results.py
@@ -26,67 +25,42 @@ python scripts/verify_locked_results.py
 
 Expected output:
 ```text
-============================================================================================
-LOCKED VERSION 5 (v5) GROUND-TRUTH METRIC VERIFICATION REPORT (SEED = 20261022)
-============================================================================================
-[PASS] | Manifest: 4,000 total images across 8 classes            | rows=4000, classes=8
-[PASS] | Manifest: 2,554 unique specimen clusters                 | unique_clusters=2554, expected=2554
-...
-[PASS] | Table 7: MLDID Canonical-pose Zero-Shot Acc (42.63%)     | actual=42.63, expected=42.63
-[PASS] | Table 7: MLDID Canonical-pose Zero-Shot F1 (0.4395)      | actual=0.4395, expected=0.4395
---------------------------------------------------------------------------------------------
-Summary: 42/42 checks passed.
-============================================================================================
+ALL 57 LOCKED VERSION 5 (v5) GROUND-TRUTH CHECKS PASSED SUCCESSFULLY.
 ```
 
 ---
 
-## 3. Running Unit & Smoke Tests (`pytest`)
+## 3. Unit and Smoke Test Suite (`pytest`)
 
-Our unit test suite (`tests/test_pipeline_smoke.py`) validates the 256-entry uniform LBP lookup table, hybrid Otsu-Chroma segmentation, Canonical Leaf Pose Normalization, exact 7-branch feature dimensionality ($52 + 57 + 28 + 45 + 7 + 50 + 1,764 = 2,003\text{D}$), `BlockPCACompressor` ($2,003\text{D} \to 303\text{D}$), `CalibratedConfidenceGatedSystem`, and `coral_align_features`:
+Run the automated test suite to verify ROI segmentation, quality-gated preprocessing, 7-branch $2,003\text{D}$ feature extraction, `BlockPCACompressor` ($303\text{D}$), `CalibratedConfidenceGatedSystem`, and locked CSV integrity:
 
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ---
 
-## 4. Single-Image Edge Inference Demo (`predict_single_image.py`)
+## 4. Single-Image CLI Inference (`predict_single_image.py`)
 
-Run the serialized Version 5 model (`results/models/proposed_twostage_gated.joblib`) on any local leaf image or on a synthetic demo leaf:
+Evaluate the pretrained Two-Stage Confidence-Gated model on any RGB image file or run the built-in synthetic specimen demo:
 
 ```bash
-# Run on a synthetic mango leaf (no dataset required)
+# Synthetic leaf smoke test
 python scripts/predict_single_image.py --synthetic-demo
 
-# Run on a real mango leaf image with Canonical Pose Normalization
-python scripts/predict_single_image.py --image "data/MangoLeafBD/Anthracnose/20211008_124249 (Custom).jpg" --tau 0.65
+# Real mango leaf image inference with custom gate threshold
+python scripts/predict_single_image.py --image "path/to/leaf.jpg" --tau-gate 0.65 --canonical-pose
 ```
 
 ---
 
-## 5. Regenerating LaTeX Tables & Publication Figures
+## 5. Regenerating Publication Figures and LaTeX Booktabs Tables
 
-1. **Generate LaTeX `booktabs` Tables (`paper/tables_latex/*.tex`) & Analytical Charts (`Figure2`, `Figure4`, `Figure7`)**:
+1. **Generate LaTeX Booktabs Tables (`paper/tables_latex/*.tex`) and Analytical Charts (`Fig03`, `Fig07b`, `Fig09`, `Fig11`, `Fig12`, `Fig16`):**
    ```bash
    python scripts/generate_paper_assets.py
    ```
-2. **Render High-DPI HTML/CSS/SVG Architecture & Latency Diagrams (`Figure1`, `Figure5`, `Figure6`) via Playwright**:
+2. **Render High-DPI Architectural and Real-Image Visual Proof Diagrams (`Fig01`, `Fig02`, `Fig04`, `Fig05`, `Fig06`, `Fig07`, `Fig08`, `Fig10`, `Fig13`, `Fig14`, `Fig15`):**
    ```bash
    python scripts/render_publication_diagrams.py
    ```
-   This script writes the self-contained interactive showcase to `results/figures/publication_diagrams_showcase.html` and captures 2x-DPI PNG screenshots directly to `results/figures/Figure1_Pipeline_Architecture_Overview.png`, `results/figures/Figure5_Latency_and_Resource_Profile.png`, and `results/figures/Figure6_Optical_Modes_and_Canonical_Pose.png`.
-
----
-
-## 6. Full End-to-End Execution on Raw Datasets
-
-Once `MangoLeafBD` ($4,000$ images) and `MLDID` ($3,000$ images) are placed in `data/MangoLeafBD` and `data/MLDID` (see [`docs/DATASET_PREPARATION.md`](DATASET_PREPARATION.md)), run:
-
-```bash
-python scripts/run_full_pipeline.py --mango-root "data/MangoLeafBD" --mldid-root "data/MLDID" --run-eda
-```
-
-Or open the interactive research notebooks in `notebooks/`:
-- [`notebooks/Agri_EdgeAI_Mango_Research_v5.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_v5.ipynb): Locked Version 5 core experimental benchmark.
-- [`notebooks/Agri_EdgeAI_Mango_Research_v8_eda.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_v8_eda.ipynb): Extended 8-figure Exploratory Data Analysis (`EDA_MangoLeafBD` and `EDA_MLDID`).

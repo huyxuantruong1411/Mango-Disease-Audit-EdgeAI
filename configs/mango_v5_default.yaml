@@ -110,3 +110,4 @@ model:
   coral:
     shrinkage_reg: 0.35
     identity_anchor: 0.20
+
