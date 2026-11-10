@@ -6,7 +6,7 @@ All experimental metrics in this repository are locked to **Version 5 (`v5`, `SE
 
 ## 1. Specimen-Identity Leakage Audit and Background Shortcut Quantification (Tables 1 & 2)
 
-- **Specimen-Cluster Audit (Table 1):** Across 4,000 images in `MangoLeafBD` (500 per class), dual-criterion graph clustering ($d_{\text{Hamming}}(\text{pHash}) \le 6 \lor \cos_{\text{HS}} \ge 0.992$) identifies **2,554 unique specimen clusters** and **1,446 near-duplicate/rotated siblings (36.15%)**. Under a naive stratified random split, **85 / 218 (39.0%) of multi-image clusters leak across train and test sets**, whereas `StratifiedGroupKFold` enforces **0.0% leakage** (2,795 train / 595 validation / 610 test images).
+- **Specimen-Cluster Audit (Table 1):** Across 4,000 images in `MangoLeafBD` (500 per class), dual-criterion graph clustering (pHash Hamming distance $\le 6$ or central HS cosine similarity $\ge 0.992$) identifies **2,554 unique specimen clusters** and **1,446 near-duplicate/rotated siblings (36.15%)**. Under a naive stratified random split, **85 / 218 (39.0%) of multi-image clusters leak across train and test sets**, whereas `StratifiedGroupKFold` enforces **0.0% leakage** (2,795 train / 595 validation / 610 test images).
 
 - **Five-View Shortcut Audit (Table 2):** Under the leak-free group split (12.50% random chance):
   - **Whole ROI:** achieves **98.33% Acc** (0.9833 Macro-F1).
@@ -29,11 +29,11 @@ All experimental metrics in this repository are locked to **Version 5 (`v5`, `SE
 
 ## 2. Progressive 14-Step Ablation and Block-PCA Recovery (Table 3)
 
-- **Dimensionality Dilution ($M_2 \to M_4 \to M_9$):** Compact HSV + LBP ($M_2$, 80D) achieves **97.35% Acc** (0.9739 Macro-F1). Appending raw 1,764D HOG ($M_4$, 1,844D) dilutes chromatic weights and drops accuracy to **86.61%** (0.8453 Macro-F1). Adding CIE-LAB, 5-Patch, Quality Gate, Quality Vector $q$, and MGCT in raw 2,003D space ($M_9$) recovers accuracy only to **92.05%** (0.9236 Macro-F1).
+- **Dimensionality Dilution (`M2` $\to$ `M4` $\to$ `M9`):** Compact HSV + LBP (`M2`, 80D) achieves **97.35% Acc** (0.9739 Macro-F1). Appending raw 1,764D HOG (`M4`, 1,844D) dilutes chromatic weights and drops accuracy to **86.61%** (0.8453 Macro-F1). Adding CIE-LAB, 5-Patch, Quality Gate, Quality Vector $q$, and MGCT in raw 2,003D space (`M9`) recovers accuracy only to **92.05%** (0.9236 Macro-F1).
 
-- **Energy-Balanced Block-PCA Recovery ($M_9 \to M_{10}$):** Compressing 1,764D HOG to 64D PCA and balancing RMS energy ($\gamma = 0.45 \to 303\text{D}$) drives a **+5.86% accuracy jump** to **97.91% Acc** (0.9789 Macro-F1, 95% CI $[0.9656, 0.9891]$, exact McNemar $p < 0.0001$).
+- **Energy-Balanced Block-PCA Recovery (`M9` $\to$ `M10`):** Compressing 1,764D HOG to 64D PCA and balancing RMS energy ($\gamma = 0.45 \to 303\text{D}$) drives a **+5.86% accuracy jump** to **97.91% Acc** (0.9789 Macro-F1, 95% CI $[0.9656, 0.9891]$, exact McNemar $p < 0.0001$).
 
-- **Pure Biological Organ-Only Benchmark ($M_{11}$):** Evaluating $M_{10}$ strictly on segmented leaf organs with studio background zeroed achieves **96.37% Acc** (0.9549 Macro-F1).
+- **Pure Biological Organ-Only Benchmark (`M11`):** Evaluating `M10` strictly on segmented leaf organs with studio background zeroed achieves **96.37% Acc** (0.9549 Macro-F1).
 
 <div align="center">
   <img src="../results/figures/Fig09_Progressive_Ablation_Trajectory_M1_M11.png" width="94%" alt="Figure 9: Progressive Ablation Trajectory" />

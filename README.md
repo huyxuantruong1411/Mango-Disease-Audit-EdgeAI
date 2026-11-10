@@ -24,7 +24,7 @@ This repository provides the official, bit-for-bit reproducible implementation o
 
 - **Pillar II (Foreground-Aware Quality-Gated Optical Preprocessing):** A hybrid HSV saturation and CIE-LAB chromaticity salience segmenter isolates the biological leaf lamina prior to feature extraction. Three physical restoration gates are evaluated strictly within the foreground organ mask: (i) Donoho–Johnstone Median Absolute Deviation (MAD) sensor-grain gate, (ii) central-window specular flash glare replacement, and (iii) foreground-restricted luminance percentile stretch with mild CLAHE. Under $\sigma = 10$ Gaussian sensor noise, this quality gate delivers a **+0.3533 Macro-F1 improvement** over raw features (0.8647 vs. 0.5114), whereas unconditional CLAHE degrades to 0.4207.
 
-- **Pillar III (Shared-Sobel Seven-Branch Feature Extraction and Energy-Balanced Block-PCA):** A unified $128 \times 128$ extraction engine extracts 2,003 raw dimensions across seven biological branches, reusing a single $3 \times 3$ Sobel gradient pass and a 256-entry lookup table for rotation-invariant uniform LBP. To resolve the **7.38:1 dimensionality dilution** where 1,764D HOG overwhelms 239D color-texture features (causing baseline accuracy to fall from 97.35% in $M_2$ to 86.61% in $M_4$), our `BlockPCACompressor` preserves all 239D color-texture features, projects HOG onto 64 principal axes, and equalizes root-mean-square (RMS) energy ($\gamma = 0.45 \to 303\text{D}$), yielding a statistically significant **+5.86% accuracy jump** (92.05% in $M_9$ to **97.91%** in $M_{10}$, exact McNemar $p < 0.0001$).
+- **Pillar III (Shared-Sobel Seven-Branch Feature Extraction and Energy-Balanced Block-PCA):** A unified $128 \times 128$ extraction engine extracts 2,003 raw dimensions across seven biological branches, reusing a single $3 \times 3$ Sobel gradient pass and a 256-entry lookup table for rotation-invariant uniform LBP. To resolve the **7.38:1 dimensionality dilution** where 1,764D HOG overwhelms 239D color-texture features (causing baseline accuracy to fall from 97.35% in `M2` to 86.61% in `M4`), our `BlockPCACompressor` preserves all 239D color-texture features, projects HOG onto 64 principal axes, and equalizes root-mean-square (RMS) energy ($\gamma = 0.45 \to 303\text{D}$), yielding a statistically significant **+5.86% accuracy jump** (92.05% in `M9` to **97.91%** in `M10`, exact McNemar $p < 0.0001$).
 
 - **Pillar IV (Temperature-Calibrated Two-Stage Confidence-Gated Classification):** A temperature-scaled Stage-1 linear specialist ($T^{\ast} = 0.758$, Expected Calibration Error $\text{ECE} = 0.0094$) classifies **98.47% of test specimens on the fast path in 0.48 ms** of classifier time. Only **1.53% of ambiguous boundary cases** ($\tau_{\text{gate}} = 0.65$) are selectively escalated to a heterogeneous Stage-2 nonlinear ensemble (Platt-calibrated RBF-SVM, single-hidden-layer MLP, and cosine kNN), elevating accuracy to **98.47% (0.9836 Macro-F1)** with an ultra-compact **480.2 KB footprint** and selective risk $\text{AURC} = 0.00158$.
 
@@ -81,12 +81,12 @@ The following table summarizes the mathematical inputs, algorithmic roles, and s
 
 | Pipeline Stage | Core Module & Function | Input / Output Representation | Primary Algorithmic Role |
 | :--- | :--- | :--- | :--- |
-| **Stage 1: Specimen & Shortcut Audit** | [`audit.py`](src/mango_edge_cv/audit.py)<br>`build_audit_groups` | $N = 4,000$ raw images $\to$ $2,554$ specimen cluster IDs | Eliminates 39.0% random-split specimen leakage via connected components on 2D-DCT `pHash` and central HS histograms. |
-| **Stage 2: ROI & Quality Gate** | [`preprocessing.py`](src/mango_edge_cv/preprocessing.py)<br>`segment_plant_organ_roi`<br>`apply_adaptive_quality_preprocessing` | $256 \times 256 \times 3$ RGB image<br>Binary mask $M_{\text{fg}} \in \{0, 255\}^{256\times256}$ | Isolates leaf lamina via hybrid Otsu-Chroma salience; conditionally triggers MAD denoising, glare inpainting, and foreground CLAHE. |
-| **Stage 3: 7-Branch Feature Engine** | [`features.py`](src/mango_edge_cv/features.py)<br>`extract_fast_all_branches` | $128 \times 128$ unified grid $\to$ $\mathbf{x} \in \mathbb{R}^{2,003}$ | Extracts HSV (52D), LAB (57D), LUT-LBP (28D), 5-Patch (45D), Quality $q$ (7D), MGCT (50D), and Shared-Sobel HOG (1,764D). |
-| **Stage 4: Energy-Balanced Block-PCA** | [`models.py`](src/mango_edge_cv/models.py)<br>`BlockPCACompressor` | $\mathbf{x} \in \mathbb{R}^{2,003} \to \mathbf{z} \in \mathbb{R}^{303}$ | Preserves 239D color-texture features intact, projects 1,764D HOG onto $k=64$ principal axes, and balances RMS energy ($\gamma = 0.45$). |
-| **Stage 5: Calibrated Confidence Gate** | [`models.py`](src/mango_edge_cv/models.py)<br>`CalibratedConfidenceGatedSystem` | $\mathbf{z} \in \mathbb{R}^{303} \to \hat{y} \in \{1,\dots,8\}$ | Evaluates temperature-scaled L2-LR ($T^{\ast}=0.758$); accepts 98.47% on fast path ($\tau_{\text{gate}}=0.65$) and routes 1.53% to Stage-2 ensemble. |
-| **Stage 6: Cross-Domain Alignment** | [`preprocessing.py`](src/mango_edge_cv/preprocessing.py)<br>`canonicalize_leaf_organ_image` | Arbitrary $512 \times 512$ frame $\to$ $256 \times 256$ canonical pose | Aligns principal covariance axis $\theta$ of segmented leaf horizontally and normalizes foreground $L^{\ast}$ dynamic range for external transfer. |
+| **Stage 1: Specimen & Shortcut Audit** | [`audit.py`](src/mango_edge_cv/audit.py)<br>`build_audit_groups` | 4,000 raw images to 2,554 specimen cluster IDs | Eliminates 39.0% random-split specimen leakage via connected components on 2D-DCT pHash and central HS histograms. |
+| **Stage 2: ROI & Quality Gate** | [`preprocessing.py`](src/mango_edge_cv/preprocessing.py)<br>`segment_plant_organ_roi`<br>`apply_adaptive_quality_preprocessing` | 256x256x3 RGB image and binary organ mask `M_fg` | Isolates leaf lamina via hybrid Otsu-Chroma salience; conditionally triggers MAD denoising, glare inpainting, and foreground CLAHE. |
+| **Stage 3: 7-Branch Feature Engine** | [`features.py`](src/mango_edge_cv/features.py)<br>`extract_fast_all_branches` | 128x128 unified grid to 2,003D feature vector | Extracts HSV (52D), LAB (57D), LUT-LBP (28D), 5-Patch (45D), Quality $q$ (7D), MGCT (50D), and Shared-Sobel HOG (1,764D). |
+| **Stage 4: Energy-Balanced Block-PCA** | [`models.py`](src/mango_edge_cv/models.py)<br>`BlockPCACompressor` | 2,003D raw features to 303D compressed vector | Preserves 239D color-texture features intact, projects 1,764D HOG onto $k=64$ principal axes, and balances RMS energy ($\gamma = 0.45$). |
+| **Stage 5: Calibrated Confidence Gate** | [`models.py`](src/mango_edge_cv/models.py)<br>`CalibratedConfidenceGatedSystem` | 303D features to predicted disease class | Evaluates temperature-scaled L2-LR ($T^{\ast}=0.758$); accepts 98.47% on fast path ($\tau=0.65$) and routes 1.53% to Stage-2 ensemble. |
+| **Stage 6: Cross-Domain Alignment** | [`preprocessing.py`](src/mango_edge_cv/preprocessing.py)<br>`canonicalize_leaf_organ_image` | Arbitrary 512x512 frame to 256x256 canonical pose | Aligns principal covariance axis $\theta$ of segmented leaf horizontally and normalizes foreground $L^{\ast}$ dynamic range for external transfer. |
 
 ---
 
@@ -94,19 +94,35 @@ The following table summarizes the mathematical inputs, algorithmic roles, and s
 
 ### 2.1 Mathematical Formulation of Specimen-Identity Graph Clustering
 
-During agricultural image acquisition, field operators commonly capture multiple photographs of the same physical leaf under slight camera rotations ($90^\circ, 180^\circ, 270^\circ$), zoom adjustments, or rapid burst shots. When such collections are partitioned via standard stratified random sampling, sibling views of the identical leaf populate both training and evaluation subsets, converting generalization testing into near-duplicate instance memorization.
+During agricultural image acquisition, field operators commonly capture multiple photographs of the same physical leaf under slight camera rotations (90°, 180°, 270°), zoom adjustments, or rapid burst shots. When such collections are partitioned via standard stratified random sampling, sibling views of the identical leaf populate both training and evaluation subsets, converting generalization testing into near-duplicate instance memorization.
 
-To audit and eliminate specimen leakage without relying on unreliable filenames, we construct an undirected graph $G_c = (V_c, E_c)$ independently within each disease class $c \in \{1,\dots,8\}$ (`build_audit_groups` in [`src/mango_edge_cv/audit.py`](src/mango_edge_cv/audit.py)).
-
-#### 1. Structural Low-Frequency Perceptual Hash ($\text{pHash}_{64}$)
-
-Each image $I_i$ is converted to grayscale and downsampled via area interpolation to $I_{32} \in \mathbb{R}^{32\times32}$. Applying the 2D Discrete Cosine Transform yields $D = \text{DCT}_{2\text{D}}(I_{32})$. We extract the top-left $8 \times 8$ low-frequency submatrix $D_{8\times8} = D_{0:8, 0:8}$. Excluding the DC component $D_{0,0}$, let:
+To audit and eliminate specimen leakage without relying on unreliable filenames, we construct an undirected graph for each disease class using `build_audit_groups` ([`src/mango_edge_cv/audit.py`](src/mango_edge_cv/audit.py)):
 
 $$
-m_{\text{AC}}(I_i) = \operatorname{median}\Big(\big\{D_{u,v}(I_i) : (u, v) \in \{0, \dots, 7\}^2 \setminus \{(0, 0)\}\big\}\Big)
+G_c = (V_c, E_c), \quad c \in \{1, \dots, 8\}
 $$
 
-The 64-bit binary perceptual hash $\mathbf{b}(I_i) \in \{0, 1\}^{64}$ and pairwise Hamming distance are defined as:
+$$
+V_c = \{1, \dots, N_c\}, \quad N_c = 500
+$$
+
+where each index represents an image belonging to disease class $c$.
+
+#### 1. Structural Low-Frequency Perceptual Hash (pHash-64)
+
+Each image is converted to grayscale and downsampled via area interpolation to $32 \times 32$ pixels. Applying the orthogonal 2D Discrete Cosine Transform yields frequency coefficients:
+
+$$
+D(I_i) = \text{DCT}_{2\text{D}}(I_{32}) \in \mathbb{R}^{32 \times 32}
+$$
+
+We extract the top-left $8 \times 8$ low-frequency submatrix. Excluding the DC component $(0, 0)$, the adaptive AC median threshold is computed as:
+
+$$
+m_{\text{AC}}(I_i) = \text{median}\Big(\big\{D_{u,v}(I_i) : (u, v) \in \{0, \dots, 7\}^2 \setminus \{(0, 0)\}\big\}\Big)
+$$
+
+The 64-bit binary perceptual hash and pairwise Hamming distance are defined as:
 
 $$
 b_{u,v}(I_i) = \mathbb{I}\!\left(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\right), \quad (u, v) \in \{0, \dots, 7\}^2
@@ -118,21 +134,27 @@ $$
 
 #### 2. Rotation-Invariant Central-ROI Chromatic Cosine Similarity
 
-Because $90^\circ, 180^\circ, 270^\circ$ planar rotations permute 2D-DCT spatial frequency coordinates while leaving the leaf's internal lesion color distribution invariant, we extract the central 60% window $I_{\text{center}} = I[0.20H : 0.80H, \, 0.20W : 0.80W]$, resize to $64 \times 64$, convert to HSV space, and compute a joint 2D Hue–Saturation histogram with 12 Hue bins and 8 Saturation bins. Flattening and $L_2$-normalizing yields $\mathbf{h}_i \in \mathbb{R}^{96}$ ($\|\mathbf{h}_i\|_2 = 1$). Chromatic similarity is given by:
+Because planar rotations permute 2D-DCT spatial frequency coordinates while leaving the leaf's internal lesion color distribution invariant, we extract the central 60% window:
 
 $$
-s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\|\mathbf{h}_i\|_2 \, \|\mathbf{h}_j\|_2 + \varepsilon}
+I_{\text{center}} = I[0.20H : 0.80H, \; 0.20W : 0.80W]
+$$
+
+We resize the central window to $64 \times 64$, convert to HSV space, and compute a joint 2D Hue–Saturation histogram (12 Hue bins, 8 Saturation bins). Flattening and L2-normalizing yields a 96-dimensional unit vector $\mathbf{h}_i$. Chromatic similarity is evaluated as:
+
+$$
+s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\|\mathbf{h}_i\|_2 \, \|\mathbf{h}_j\|_2 + 10^{-8}}
 $$
 
 #### 3. Connected-Component Specimen Clustering
 
-An undirected edge $(i, j) \in E_c$ connects two images if and only if structural or chromatic proximity holds:
+An undirected edge connects two images if and only if structural or chromatic proximity holds:
 
 $$
 (i, j) \in E_c \iff \Big(d_{\text{Hamming}}(I_i, I_j) \le 6\Big) \;\lor\; \Big(s_{\text{cos}}(I_i, I_j) \ge 0.992\Big)
 $$
 
-Connected components of $G_c$ are extracted via depth-first graph traversal (`scipy.sparse.csgraph.connected_components`), assigning a unique specimen cluster identifier `group_id` to each component. All subsequent train, validation, and test partitions are generated via `StratifiedGroupKFold` so that every connected component resides entirely within one partition:
+Connected components of the graph are extracted via depth-first graph traversal (`scipy.sparse.csgraph.connected_components`), assigning a unique specimen cluster identifier `group_id` to each component. All subsequent train, validation, and test partitions are generated via `StratifiedGroupKFold` so that every connected component resides entirely within one partition:
 
 $$
 \mathcal{G}_{\text{train}} \cap \mathcal{G}_{\text{val}} = \varnothing, \quad \mathcal{G}_{\text{train}} \cap \mathcal{G}_{\text{test}} = \varnothing
@@ -154,7 +176,7 @@ Figure 2 demonstrates real connected components identified in [`manifest_MANGO_a
 
 **Table 1: Specimen-Identity Clustering and Split-Leakage Audit on `MangoLeafBD` ([`Table1_Dataset_Leakage_and_Group_Audit.csv`](results/tables/Table1_Dataset_Leakage_and_Group_Audit.csv))**
 
-| Class Name | Raw Images ($N$) | Unique Specimen Clusters ($d_{\text{H}} \le 6 \lor \cos_{\text{HS}} \ge 0.992$) | Near-Duplicate / Sibling Ratio (%) | Group-Aware Train / Val / Test Images |
+| Class Name | Raw Images ($N$) | Unique Specimen Clusters (`d_H <= 6` or `cos_HS >= 0.992`) | Near-Duplicate / Sibling Ratio (%) | Group-Aware Train / Val / Test Images |
 | :--- | :---: | :---: | :---: | :---: |
 | `Anthracnose` | 500 | 352 | 29.60% | 347 / 72 / 81 |
 | `Bacterial_Canker` | 500 | 275 | 45.00% | 351 / 73 / 76 |
@@ -183,10 +205,10 @@ Even after eliminating specimen leakage, models trained on studio benchmarks can
 | Audit View / Input Restriction | Mathematical Input Domain | Feature Dim | Group-Split Test Acc (%) | Group-Split Macro-F1 | Random-Split Test Acc (%) | Empirical Interpretation |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
 | **1. Whole Image ROI** | Center-cropped frame ($r = 0.86$), leaf + studio backdrop | 137D | **98.33%** | **0.9833** | 98.88% | Upper-bound combining biological lesions and studio context. |
-| **2. Segmented Plant Organ Only** | $I_{\text{fg}} = I \odot M_{\text{fg}}$ (studio background zeroed) | 137D | **94.84%** | **0.9440** | 96.37% | Pure biological signal extracted strictly from leaf lamina. |
-| **3. Background Only (Organ Masked Out)** | $I_{\text{bg}} = I \odot (1 - M_{\text{fg}})$ (**zero leaf pixels**) | 137D | **94.84%** | **0.9396** | 94.98% | Studio paper reflectance and shadow vignette alone match organ accuracy. |
-| **4. Four $32 \times 32$ Corner Patches Only** | $\bigcup_{k=1}^{4} \Omega_{\text{corner},k}$ (6.25% outer corner area) | 137D | **85.08%** | **0.8332** | 85.49% | Extreme peripheral backdrop corners predict disease at $6.8\times$ chance (12.50%). |
-| **5. Image File Metadata Only** | $[\text{KB}, \mu_R, \mu_G, \mu_B, \sigma_{\text{RGB}}, r_{\text{fg}}, H/W]$ | 7D | **59.14%** | **0.5742** | 59.83% | Non-visual file size and aspect ratio predict class at $4.7\times$ chance. |
+| **2. Segmented Plant Organ Only** | `I_fg = I * M_fg` (studio background zeroed) | 137D | **94.84%** | **0.9440** | 96.37% | Pure biological signal extracted strictly from leaf lamina. |
+| **3. Background Only (Organ Masked Out)** | `I_bg = I * (1 - M_fg)` (**zero leaf pixels**) | 137D | **94.84%** | **0.9396** | 94.98% | Studio paper reflectance and shadow vignette alone match organ accuracy. |
+| **4. Four $32 \times 32$ Corner Patches Only** | Outer 4 corner regions ($32 \times 32$, 6.25% outer area) | 137D | **85.08%** | **0.8332** | 85.49% | Extreme peripheral backdrop corners predict disease at $6.8\times$ chance (12.50%). |
+| **5. Image File Metadata Only** | File size, RGB channel means, std, fg-ratio, aspect ratio | 7D | **59.14%** | **0.5742** | 59.83% | Non-visual file size and aspect ratio predict class at $4.7\times$ chance. |
 
 ---
 
@@ -203,24 +225,25 @@ C^{\ast}(x, y) = \sqrt{\big(a^{\ast}(x, y) - 128\big)^2 + \big(b^{\ast}(x, y) - 
 $$
 
 $$
-S_{\text{roi}}(x, y) = \operatorname{clip}\Big(0.60 \cdot S_{\text{HSV}}(x, y) + 1.25 \cdot C^{\ast}(x, y), \; 0, \; 255\Big)
+S_{\text{roi}}(x, y) = \text{clip}\Big(0.60 \cdot S_{\text{HSV}}(x, y) + 1.25 \cdot C^{\ast}(x, y), \; 0, \; 255\Big)
 $$
 
 #### Algorithmic Rationale & Physical Intuition
 
-- **Perceptual Saliency Principle:** Healthy green tissue exhibits high HSV saturation $S_{\text{HSV}}$ and negative $a^{\ast}$ values. In contrast, necrotic brown and yellow lesions lose green saturation but maintain high perceptual departure from neutrality along the CIE $a^{\ast}\text{--}b^{\ast}$ chromaticity axes ($C^{\ast}$).
+- **Perceptual Saliency Principle:** Healthy green tissue exhibits high HSV saturation and negative $a^{\ast}$ values. In contrast, necrotic brown and yellow lesions lose green saturation but maintain high perceptual departure from neutrality along the CIE $a^{\ast}\text{--}b^{\ast}$ chromaticity axes ($C^{\ast}$).
 
-- **Suprathreshold Weighting:** By weighting $C^{\ast}$ at **1.25** and $S_{\text{HSV}}$ at **0.60**, both healthy tissue and necrotic lesions remain strongly suprathreshold against achromatic studio backdrops (where $S_{\text{HSV}} < 28$ and $C^{\ast} \approx 0$).
+- **Suprathreshold Weighting:** By weighting $C^{\ast}$ at **1.25** and saturation at **0.60**, both healthy tissue and necrotic lesions remain strongly suprathreshold against achromatic studio backdrops (where saturation $S < 28$ and $C^{\ast} \approx 0$).
 
-- **Morphological Refinement & Component Filtering:**
-  1. Compute Otsu's optimal threshold $T_{\text{Otsu}}$ on $S_{\text{roi}}$.
-  2. Suppress residual background pixels satisfying studio conditions:
-     ```
-     (V > 230 and S < 28) or (V < 15)
-     ```
-     along with a 3% frame border margin.
-  3. Apply morphological closing ($7 \times 7$ elliptical kernel, 2 iterations) followed by opening (1 iteration).
-  4. Retain the largest 8-connected component $M_{\text{fg}}(x, y) \in \{0, 255\}$, accepting it when its area covers between 4% and 92% of the total frame (with a centered elliptical fallback).
+- **Morphological Refinement & Component Filtering:** Otsu's optimal threshold $T_{\text{Otsu}}$ is computed on the hybrid saliency map:
+
+$$
+M_0(x, y) = \mathbb{I}\big(S_{\text{roi}}(x, y) > T_{\text{Otsu}}\big)
+$$
+
+Following initial thresholding:
+1. Suppress residual background pixels satisfying studio conditions `(V > 230 and S < 28) or (V < 15)` along with a 3% frame border margin.
+2. Apply morphological closing ($7 \times 7$ elliptical kernel, 2 iterations) followed by opening (1 iteration).
+3. Retain the largest 8-connected foreground component, accepting it when its area covers between 4% and 92% of the total frame (with a centered elliptical fallback).
 
 <div align="center">
   <img src="results/figures/Fig05_Hybrid_ROI_Segmentation_StepByStep.png" width="94%" alt="Figure 5: Step-by-Step Hybrid ROI Segmentation" />
@@ -229,35 +252,35 @@ $$
 
 ### 3.2 Three Conditional Optical Restoration Gates
 
-Unconditional image enhancement (such as applying CLAHE or sharpening to every image) degrades clean images and catastrophically amplifies sensor noise (dropping $\sigma=10$ noisy Macro-F1 from 0.5114 to 0.4207 in Table 5). Our quality-gated preprocessor (`apply_adaptive_quality_preprocessing`) evaluates three physical quality metrics strictly within the foreground leaf mask $M_{\text{fg}}$ and triggers restoration only when quantitative thresholds are crossed:
+Unconditional image enhancement (such as applying CLAHE or sharpening to every image) degrades clean images and catastrophically amplifies sensor noise (dropping $\sigma=10$ noisy Macro-F1 from 0.5114 to 0.4207 in Table 5). Our quality-gated preprocessor (`apply_adaptive_quality_preprocessing`) evaluates three physical quality metrics strictly within the foreground leaf mask and triggers restoration only when quantitative thresholds are crossed:
 
 #### Gate 1 — Donoho–Johnstone MAD Sensor Grain Gate (`_estimate_noise_sigma_mad`)
 
 We isolate high-frequency spatial residuals on the grayscale leaf foreground via a $3 \times 3$ median filter:
 
 $$
-R(x, y) = I_{\text{gray}}(x, y) - \operatorname{MedianBlur}_{3\times3}(I_{\text{gray}})(x, y), \quad (x, y) \in M_{\text{fg}}
+R(x, y) = I_{\text{gray}}(x, y) - \text{MedianBlur}_{3\times3}(I_{\text{gray}})(x, y), \quad (x, y) \in M_{\text{fg}}
 $$
 
 Using the robust Median Absolute Deviation (MAD) scale estimator for Gaussian noise ($\Phi^{-1}(0.75) \approx 0.6745$):
 
 $$
-\hat{\sigma}_{\text{MAD}} = \frac{\operatorname{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \operatorname{median}(R)|\big)}{0.6745}
+\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
 $$
 
 The conditional smoothing policy is defined as:
 
 $$
 I^{(1)} = \begin{cases}
-\operatorname{GaussianBlur}_{3\times3}\!\big(\operatorname{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
-\operatorname{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
+\text{GaussianBlur}_{3\times3}\!\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
+\text{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
 I & \text{if } \hat{\sigma}_{\text{MAD}} < 5.5.
 \end{cases}
 $$
 
-- **Severe Grain ($\hat{\sigma}_{\text{MAD}} \ge 10.0$):** Applies cascaded impulse- plus Gaussian smoothing.
-- **Moderate Grain ($5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0$):** Applies mild Gaussian smoothing.
-- **Clean Regime ($\hat{\sigma}_{\text{MAD}} < 5.5$):** Bypasses spatial smoothing completely (0% sharpness loss on clean leaf venation).
+- **Severe Grain (estimated noise $\ge 10.0$):** Applies cascaded impulse- plus Gaussian smoothing.
+- **Moderate Grain (estimated noise between $5.5$ and $10.0$):** Applies mild Gaussian smoothing.
+- **Clean Regime (estimated noise $< 5.5$):** Bypasses spatial smoothing completely (0% sharpness loss on clean leaf venation).
 
 #### Gate 2 — Central-Window Specular Flash Glare Attenuation (`apply_glare_inpainting`)
 
@@ -267,24 +290,30 @@ $$
 \Omega_{\text{center}} = [0.14H : 0.86H, \; 0.14W : 0.86W] \cap M_{\text{fg}}
 $$
 
-Let $r_{\text{glare}}$ denote the fraction of foreground pixels satisfying the glare predicate. If $0.003 \le r_{\text{glare}} \le 0.220$, the dilated glare mask $M_{\text{glare}}^{\oplus}$ ($5 \times 5$ elliptical kernel) is replaced by local $11 \times 11$ Gaussian neighborhood interpolation ($\sigma = 2.5$):
+Let the glare ratio be defined as the fraction of foreground pixels satisfying the glare predicate:
+
+$$
+r_{\text{glare}} = \frac{|M_{\text{glare}}|}{|M_{\text{fg}}|}, \quad \text{where } M_{\text{glare}}(x, y) = \mathbb{I}\big(V(x, y) > 238 \land S(x, y) < 38\big)
+$$
+
+If the glare ratio lies between $0.003$ and $0.220$, the dilated glare mask ($5 \times 5$ elliptical kernel) is replaced by local $11 \times 11$ Gaussian neighborhood interpolation ($\sigma = 2.5$):
 
 $$
 I^{(2)}(x, y) = \begin{cases}
-\operatorname{GaussianBlur}_{11\times11}(I^{(1)}, \; \sigma = 2.5)(x, y) & \text{if } (x, y) \in M_{\text{glare}}^{\oplus} \text{ and } 0.003 \le r_{\text{glare}} \le 0.220, \\
+\text{GaussianBlur}_{11\times11}(I^{(1)}, \; \sigma = 2.5)(x, y) & \text{if } (x, y) \in M_{\text{glare}}^{\oplus} \text{ and } 0.003 \le r_{\text{glare}} \le 0.220, \\
 I^{(1)}(x, y) & \text{otherwise.}
 \end{cases}
 $$
 
 #### Gate 3 — Foreground-Restricted CIE $L^{\ast}$ Percentile Stretch and Mild CLAHE
 
-Evaluating luminance $L^{\ast}(x, y)$ exclusively on non-glare foreground pixels $(x, y) \in M_{\text{fg}} \setminus M_{\text{glare}}^{\oplus}$, we compute the standard deviation $\sigma(L^{\ast}_{\text{fg}})$ and inter-percentile dynamic range:
+Evaluating luminance on non-glare foreground pixels, the inter-percentile dynamic range is defined as:
 
 $$
 \Delta L^{\ast}_{95,5} = P_{95}(L^{\ast}_{\text{fg}}) - P_5(L^{\ast}_{\text{fg}})
 $$
 
-If and only if the leaf is underexposed or low-contrast ($\sigma(L^{\ast}_{\text{fg}}) < 38.0 \lor \Delta L^{\ast}_{95,5} < 132.0$), we apply a linear percentile stretch mapping $[P_2(L^{\ast}_{\text{fg}}), P_{98}(L^{\ast}_{\text{fg}})] \to [12, 242]$ followed by mild Contrast-Limited Adaptive Histogram Equalization ($\text{clipLimit} = 1.55$, $8 \times 8$ tile grid), updating **only** pixels inside $M_{\text{fg}} \setminus M_{\text{glare}}^{\oplus}$ while leaving background pixels untouched.
+If and only if the leaf is underexposed or low-contrast (standard deviation $< 38.0$ or dynamic range $< 132.0$), we apply a linear percentile stretch mapping $[P(2), P(98)] \to [12, 242]$ followed by mild Contrast-Limited Adaptive Histogram Equalization ($\text{clipLimit} = 1.55$, $8 \times 8$ tile grid), updating **only** pixels inside the non-glare foreground mask while leaving background pixels untouched.
 
 <div align="center">
   <img src="results/figures/Fig06_Quality_Gate_MAD_Glare_CLAHE_Proof.png" width="94%" alt="Figure 6: Quality Gate Proof" />
@@ -297,7 +326,7 @@ If and only if the leaf is underexposed or low-contrast ($\sigma(L^{\ast}_{\text
 
 ### 4.1 Mathematical Specification of the Seven Feature Branches (2,003D Raw)
 
-After quality-gated preprocessing at $256 \times 256$, the image is downsampled once to a unified **$128 \times 128$ extraction grid** (`extract_fast_all_branches` in [`src/mango_edge_cv/features.py`](src/mango_edge_cv/features.py)). Rather than computing redundant image derivatives across texture and shape descriptors, a **single $3 \times 3$ Sobel operator pass** computes horizontal gradients $G_x$, vertical gradients $G_y$, gradient magnitude $M$, and orientation $\Theta$:
+After quality-gated preprocessing at 256x256, the image is downsampled once to a unified **$128 \times 128$ extraction grid** (`extract_fast_all_branches` in [`src/mango_edge_cv/features.py`](src/mango_edge_cv/features.py)). Rather than computing redundant image derivatives across texture and shape descriptors, a **single $3 \times 3$ Sobel operator pass** computes horizontal gradients $G_x$, vertical gradients $G_y$, gradient magnitude $M$, and orientation $\Theta$:
 
 $$
 G_x = \begin{bmatrix} -1 & 0 & +1 \\ -2 & 0 & +2 \\ -1 & 0 & +1 \end{bmatrix} \ast I_{\text{gray},128}, \quad
@@ -305,18 +334,22 @@ G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ +1 & +2 & +1 \end{bmatrix} \a
 $$
 
 $$
-M = \sqrt{G_x^2 + G_y^2}, \quad \Theta = \left(\operatorname{atan2}(G_y, G_x) \cdot \frac{180}{\pi}\right) \bmod 180^\circ
+M = \sqrt{G_x^2 + G_y^2}, \quad \Theta = \left(\text{atan2}(G_y, G_x) \cdot \frac{180}{\pi}\right) \bmod 180^\circ
 $$
 
-The resulting derivatives are shared across Branches 4, 6, and 7. All histograms and moments in Branches 1–3 and 6 are computed strictly over the valid foreground mask $M_{\text{fg},128}$ (when $|M_{\text{fg},128}| > 80$ pixels):
+The resulting derivatives are shared across Branches 4, 6, and 7. All histograms and moments in Branches 1–3 and 6 are computed strictly over the valid foreground mask:
 
-- **Branch 1 — Foreground HSV Color Histograms & Moments ($52\text{D}$):** 16 Hue bins, 16 Saturation bins, 16 Value bins, plus mean and standard deviation of each channel ($16 \times 3 + 4 = 52\text{D}$).
-- **Branch 2 — Foreground CIE-LAB Color Histograms & Moments ($57\text{D}$):** 16 $L^{\ast}$ bins, 16 $a^{\ast}$ bins, 16 $b^{\ast}$ bins, 3 channel means, 3 channel standard deviations, and 3 skewness moments ($16 \times 3 + 9 = 57\text{D}$).
-- **Branch 3 — Fast Lookup-Table Uniform LBP ($28\text{D}$):** Standard $\text{LBP}_{8,1}^{\text{riu2}}$ texture descriptors require bitwise transitions that are compute-intensive on edge CPUs. We precompute a static 256-entry lookup table mapping every 8-bit neighbor pattern to its uniform bin ($0\dots9$). Evaluated at radii $R \in \{1, 2\}$ ($10 + 10 = 20\text{D}$) plus 8 spatial sub-patch entropy measures ($20 + 8 = 28\text{D}$).
-- **Branch 4 — Shared-Sobel Histogram of Oriented Gradients ($1,764\text{D}$):** Reuses the precomputed $G_x, G_y, M$ fields. Computed over $16 \times 16$ pixel blocks with $8 \times 8$ pixel cells, $8$ orientation bins, and $50\%$ block overlap ($14 \times 14 \times 9 = 1,764\text{D}$).
-- **Branch 5 — Five-Patch Spatial Grid Moments ($45\text{D}$):** Evaluates mean, standard deviation, and median across 5 spatial patches (top-left, top-right, bottom-left, bottom-right, and center) across RGB channels ($5 \times 3 \times 3 = 45\text{D}$).
-- **Branch 6 — Multi-Grid Chromatic-Texture Descriptors (MGCT, $50\text{D}$):** $2 \times 2$ spatial grid evaluating local color entropy, gradient variance, and saturation co-occurrence.
-- **Branch 7 — Physical Image Quality Vector ($7\text{D}$):** $\mathbf{q} = [\hat{\sigma}_{\text{MAD}}, \; r_{\text{glare}}, \; \mu(L^{\ast}), \; \sigma(L^{\ast}), \; \Delta L^{\ast}_{95,5}, \; \text{Var}(\text{Laplacian}), \; H_{\text{Shannon}}]^\top$.
+- **Branch 1 — Foreground HSV Color Histograms & Moments (52D):** 16 Hue bins, 16 Saturation bins, 16 Value bins, plus mean and standard deviation of each channel ($16 \times 3 + 4 = 52\text{D}$).
+- **Branch 2 — Foreground CIE-LAB Color Histograms & Moments (57D):** 16 $L^{\ast}$ bins, 16 $a^{\ast}$ bins, 16 $b^{\ast}$ bins, 3 channel means, 3 channel standard deviations, and 3 skewness moments ($16 \times 3 + 9 = 57\text{D}$).
+- **Branch 3 — Fast Lookup-Table Uniform LBP (28D):** Evaluated at radii $R \in \{1, 2\}$ using a static 256-entry lookup table mapping 8-bit neighbors to uniform bins ($10 + 10 = 20\text{D}$) plus 8 spatial sub-patch entropy measures ($20 + 8 = 28\text{D}$).
+- **Branch 4 — Shared-Sobel Histogram of Oriented Gradients (1,764D):** Reuses precomputed Sobel gradient fields. Computed over $16 \times 16$ pixel blocks with $8 \times 8$ pixel cells, 8 orientation bins, and 50% block overlap ($14 \times 14 \times 9 = 1,764\text{D}$).
+- **Branch 5 — Five-Patch Spatial Grid Moments (45D):** Evaluates mean, standard deviation, and median across 5 spatial patches (top-left, top-right, bottom-left, bottom-right, and center) across RGB channels ($5 \times 3 \times 3 = 45\text{D}$).
+- **Branch 6 — Multi-Grid Chromatic-Texture Descriptors (MGCT, 50D):** $2 \times 2$ spatial grid evaluating local color entropy, gradient variance, and saturation co-occurrence.
+- **Branch 7 — Physical Image Quality Vector (7D):** A 7-dimensional descriptor combining noise, glare, luminance, sharpness, and entropy:
+
+$$
+\mathbf{q} = [\hat{\sigma}_{\text{MAD}}, \; r_{\text{glare}}, \; \mu(L^{\ast}), \; \sigma(L^{\ast}), \; \Delta L^{\ast}_{95,5}, \; \text{Var}(\text{Laplacian}), \; H_{\text{Shannon}}]^\top \in \mathbb{R}^7
+$$
 
 <div align="center">
   <img src="results/figures/Fig07_Seven_Feature_Branches_Visual_Maps.png" width="94%" alt="Figure 7: Seven Feature Branches Visual Maps" />
@@ -330,21 +363,26 @@ The resulting derivatives are shared across Branches 4, 6, and 7. All histograms
 
 ### 4.2 Resolving High-Dimensional HOG Variance Dilution via BlockPCACompressor
 
-Concatenating all seven feature branches produces a raw vector $\mathbf{x} \in \mathbb{R}^{2,003}$. However, a severe statistical pathology emerges: the 1,764 HOG dimensions outnumber the 239 color-texture dimensions by **7.38 to 1**. Under standard Euclidean scaling, high-frequency spatial gradient noise dilutes biological color and texture signals, causing held-out test accuracy to collapse from **97.35% in $M_2$ to 86.61% in $M_4$** (Table 3).
+Concatenating all seven feature branches produces a raw vector $\mathbf{x} \in \mathbb{R}^{2,003}$. However, a severe statistical pathology emerges: the 1,764 HOG dimensions outnumber the 239 color-texture dimensions by **7.38 to 1**. Under standard Euclidean scaling, high-frequency spatial gradient noise dilutes biological color and texture signals, causing held-out test accuracy to collapse from **97.35% in `M2` to 86.61% in `M4`** (Table 3).
 
 Our `BlockPCACompressor` ([`src/mango_edge_cv/models.py`](src/mango_edge_cv/models.py)) resolves this dilution through three structured steps:
 
-1. **Subspace Separation:** The raw vector is split into color-texture descriptors $\mathbf{x}_{\text{ct}} \in \mathbb{R}^{239}$ and HOG descriptors $\mathbf{x}_{\text{hog}} \in \mathbb{R}^{1,764}$.
-2. **Principal Subspace Projection:** The 1,764D HOG block is centered and projected onto its top $k=64$ principal eigenvector axes:
+**Step 1 — Subspace Separation:** The raw vector is split into color-texture descriptors and HOG descriptors:
 
 $$
-\mathbf{z}_{\text{hog}} = \mathbf{U}_{64}^\top (\mathbf{x}_{\text{hog}} - \boldsymbol{\mu}_{\text{hog}}) \in \mathbb{R}^{64} \quad (27.6\times \text{ compression})
+\mathbf{x} = [\mathbf{x}_{\text{ct}}; \; \mathbf{x}_{\text{hog}}] \in \mathbb{R}^{2,003}, \quad \mathbf{x}_{\text{ct}} \in \mathbb{R}^{239}, \quad \mathbf{x}_{\text{hog}} \in \mathbb{R}^{1,764}
 $$
 
-3. **Root-Mean-Square (RMS) Energy Balancing:** We compute empirical training RMS magnitudes $\operatorname{RMS}(\tilde{\mathbf{X}}_{\text{ct}})$ and $\operatorname{RMS}(\mathbf{Z}_{\text{hog}})$, scaling the compressed HOG block by:
+**Step 2 — Principal Subspace Projection:** The 1,764D HOG block is centered and projected onto its top $k=64$ principal eigenvector axes ($27.6\times$ compression):
 
 $$
-\alpha_{\text{hog}} = \gamma \cdot \frac{\operatorname{RMS}(\tilde{\mathbf{X}}_{\text{ct}})}{\operatorname{RMS}(\mathbf{Z}_{\text{hog}})}, \quad \gamma = 0.45
+\mathbf{z}_{\text{hog}} = \mathbf{U}_{64}^\top (\mathbf{x}_{\text{hog}} - \boldsymbol{\mu}_{\text{hog}}) \in \mathbb{R}^{64}
+$$
+
+**Step 3 — Root-Mean-Square (RMS) Energy Balancing:** We compute empirical training RMS magnitudes, scaling the compressed HOG block by $\alpha_{\text{hog}}$:
+
+$$
+\alpha_{\text{hog}} = \gamma \cdot \frac{\text{RMS}(\tilde{\mathbf{X}}_{\text{ct}})}{\text{RMS}(\mathbf{Z}_{\text{hog}})}, \quad \gamma = 0.45
 $$
 
 $$
@@ -358,16 +396,16 @@ $$
 
 ### 4.3 Progressive 14-Step Ablation Study (M1 to M11, Table 3)
 
-Figure 9 and Table 3 trace the exact progression across all 14 ablation configurations under the leak-free group-split protocol, complete with 3-fold group cross-validation Macro-F1 on the training split, held-out test Macro-F1, 95% bootstrap confidence intervals ($B = 1,000$), and exact binomial McNemar $p$-values against the raw baseline $M_4$.
+Figure 9 and Table 3 trace the exact progression across all 14 ablation configurations under the leak-free group-split protocol, complete with 3-fold group cross-validation Macro-F1 on the training split, held-out test Macro-F1, 95% bootstrap confidence intervals ($B = 1,000$), and exact binomial McNemar $p$-values against the raw baseline `M4`.
 
 <div align="center">
   <img src="results/figures/Fig09_Progressive_Ablation_Trajectory_M1_M11.png" width="94%" alt="Figure 9: Progressive Ablation Trajectory" />
   <p><em>Figure 9: Progressive 14-step ablation trajectory demonstrating how Block-PCA compression drives a statistically significant +5.86% accuracy jump.</em></p>
 </div>
 
-**Table 3: Progressive Ablation Study from Single-Branch HSV ($M_1$) to Energy-Balanced Block-PCA ($M_{10}, M_{11}$) ([`Table3_Progressive_Ablation_Study.csv`](results/tables/Table3_Progressive_Ablation_Study.csv))**
+**Table 3: Progressive Ablation Study from Single-Branch HSV (M1) to Energy-Balanced Block-PCA (M10, M11) ([`Table3_Progressive_Ablation_Study.csv`](results/tables/Table3_Progressive_Ablation_Study.csv))**
 
-| Configuration | Feature Dims | 3-Fold Train Group-CV F1 | Group-Split Test Acc (%) | Macro-Precision | Macro-Recall | Group-Split Test Macro-F1 | 95% Bootstrap CI (Macro-F1) | Exact McNemar $p$-val (vs. $M_4$) | Rel. Latency Proxy |
+| Configuration | Feature Dims | 3-Fold Train Group-CV F1 | Group-Split Test Acc (%) | Macro-Precision | Macro-Recall | Group-Split Test Macro-F1 | 95% Bootstrap CI (Macro-F1) | Exact McNemar $p$-val (vs. M4) | Rel. Latency Proxy |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | `M1. HSV Only (OvR LR)` | 52 | $0.8670 \pm 0.0181$ | 90.38% | 0.9008 | 0.9012 | 0.8997 | $[0.8763, 0.9231]$ | 0.0589 | 0.61x |
 | `M2. HSV + Fast Multi-Scale LBP (OvR LR)` | 80 | $0.9548 \pm 0.0103$ | 97.35% | 0.9764 | 0.9718 | 0.9739 | $[0.9607, 0.9848]$ | $< 0.0001$ | 0.81x |
@@ -390,13 +428,19 @@ Figure 9 and Table 3 trace the exact progression across all 14 ablation configur
 
 ### 5.1 Mathematical Formulation of Selective Two-Stage Routing
 
-While the linear Stage-1 specialist ($M_{10}$) classifies 97.91% of test specimens accurately in 0.48 ms of classifier time, a small fraction (~1.5% to 4.3%) of specimens exhibit early-stage or overlapping symptoms (such as subtle `Anthracnose` vs. `Die_Back` necrosis, or `Cutting_Weevil` vs. `Bacterial_Canker` margin damage) that lie near linear decision boundaries. Running a heavy nonlinear ensemble on *every* frame would multiply model size by $8.5\times$ and degrade probability calibration ($\text{ECE} = 0.0387$).
+While the linear Stage-1 specialist (`M10`) classifies 97.91% of test specimens accurately in 0.48 ms of classifier time, a small fraction (~1.5% to 4.3%) of specimens exhibit early-stage or overlapping symptoms (such as subtle `Anthracnose` vs. `Die_Back` necrosis, or `Cutting_Weevil` vs. `Bacterial_Canker` margin damage) that lie near linear decision boundaries. Running a heavy nonlinear ensemble on *every* frame would multiply model size by $8.5\times$ and degrade probability calibration ($\text{ECE} = 0.0387$).
 
 We formulate inference as a **Selective Confidence-Gated Cascade** ([`src/mango_edge_cv/models.py`](src/mango_edge_cv/models.py)):
 
 #### 1. Stage-1 Multinomial L2 Logistic Regression with Temperature Scaling
 
-Given $\mathbf{z} \in \mathbb{R}^{303}$, Stage 1 computes linear logits $\mathbf{s}_1(\mathbf{z}) = \mathbf{W}_1 \mathbf{z} + \mathbf{b}_1 \in \mathbb{R}^8$ ($C = 0.35$, `lbfgs`). To ensure that predicted probabilities reflect true empirical accuracy, a scalar temperature $T > 0$ is optimized on the validation split $\mathcal{D}_{\text{val}}$ by minimizing cross-entropy Negative Log-Likelihood (NLL) without altering class rankings:
+Given $\mathbf{z} \in \mathbb{R}^{303}$, Stage 1 computes linear logits:
+
+$$
+\mathbf{s}_1(\mathbf{z}) = \mathbf{W}_1 \mathbf{z} + \mathbf{b}_1 \in \mathbb{R}^8 \quad (C = 0.35, \text{ lbfgs})
+$$
+
+To ensure that predicted probabilities reflect true empirical accuracy, a scalar temperature $T > 0$ is optimized on the validation split by minimizing cross-entropy Negative Log-Likelihood (NLL) without altering class rankings:
 
 $$
 T^{\ast} = \arg\min_{T \in [0.05, 5.0]} -\frac{1}{|\mathcal{D}_{\text{val}}|} \sum_{(\mathbf{z}_i, y_i) \in \mathcal{D}_{\text{val}}} \log \frac{\exp\!\big(s_{1,y_i}(\mathbf{z}_i) / T\big)}{\sum_{k=1}^{8} \exp\!\big(s_{1,k}(\mathbf{z}_i) / T\big)} = 0.758
@@ -405,25 +449,31 @@ $$
 Calibrated Stage-1 posteriors are given by:
 
 $$
-P_1(y = c \mid \mathbf{z}) = \operatorname{softmax}\!\left(\frac{\mathbf{s}_1(\mathbf{z})}{T^{\ast}}\right)_c, \quad \text{with } \text{ECE} = 0.0094
+P_1(y = c \mid \mathbf{z}) = \text{softmax}\!\left(\frac{\mathbf{s}_1(\mathbf{z})}{T^{\ast}}\right)_c, \quad \text{with Expected Calibration Error } \text{ECE} = 0.0094
 $$
 
 #### 2. Confidence Gate and Stage-2 Heterogeneous Specialist Ensemble
 
-Let $\hat{p}_1(\mathbf{z}) = \max_{c \in \{1,\dots,8\}} P_1(y = c \mid \mathbf{z})$. For a confidence threshold $\tau_{\text{gate}} \in [0, 1]$ selected on validation data ($\tau_{\text{gate}} = 0.65$):
+Let the top predicted probability be:
 
-- **Fast Path ($\hat{p}_1(\mathbf{z}) \ge \tau_{\text{gate}}$, 98.47% of test samples):** Immediately outputs $\hat{y} = \arg\max_c P_1(y=c\mid\mathbf{z})$ with zero Stage-2 computation.
-- **Slow Path ($\hat{p}_1(\mathbf{z}) < \tau_{\text{gate}}$, 1.53% of test samples):** Selectively activates three diverse nonlinear learners:
-  - **Platt-Calibrated RBF-SVM ($w_{\text{svm}} = 0.55$):** `SVC(kernel='rbf', C=4.0, gamma='scale')` with 3-fold sigmoid calibration, resolving localized radial lesion margins.
-  - **Single-Hidden-Layer Neural MLP ($w_{\text{mlp}} = 0.30$):** `MLPClassifier(hidden_layer_sizes=(128,), activation='relu')`, capturing smooth cross-branch feature interactions.
-  - **Distance-Weighted Cosine-kNN ($w_{\text{knn}} = 0.15$):** `KNeighborsClassifier(n_neighbors=11, weights='distance', metric='cosine')`, providing non-parametric neighborhood retrieval.
+$$
+\hat{p}_1(\mathbf{z}) = \max_{c \in \{1,\dots,8\}} P_1(y = c \mid \mathbf{z})
+$$
+
+For a validation-selected confidence threshold of 0.65 (denoted $\tau = 0.65$):
+
+- **Fast Path (confidence $\ge 0.65$, 98.47% of test samples):** Immediately outputs Stage-1 prediction with zero Stage-2 computation.
+- **Slow Path (confidence $< 0.65$, 1.53% of test samples):** Selectively activates three diverse nonlinear learners:
+  - **Platt-Calibrated RBF-SVM (weight 0.55):** `SVC(kernel='rbf', C=4.0, gamma='scale')` with 3-fold sigmoid calibration.
+  - **Single-Hidden-Layer Neural MLP (weight 0.30):** `MLPClassifier(hidden_layer_sizes=(128,), activation='relu')`.
+  - **Distance-Weighted Cosine-kNN (weight 0.15):** `KNeighborsClassifier(n_neighbors=11, weights='distance', metric='cosine')`.
 
 The combined Stage-2 posterior is softly blended with Stage 1 ($\beta = 0.70$):
 
 $$
 P_{\text{final}}(y \mid \mathbf{z}) = \begin{cases}
-P_1(y \mid \mathbf{z}) & \text{if } \max_c P_1(y = c \mid \mathbf{z}) \ge \tau_{\text{gate}}, \\
-(1 - \beta) \, P_1(y \mid \mathbf{z}) + \beta \, P_2(y \mid \mathbf{z}) & \text{if } \max_c P_1(y = c \mid \mathbf{z}) < \tau_{\text{gate}}.
+P_1(y \mid \mathbf{z}) & \text{if } \hat{p}_1(\mathbf{z}) \ge \tau_{\text{gate}}, \\
+(1 - \beta) \, P_1(y \mid \mathbf{z}) + \beta \, P_2(y \mid \mathbf{z}) & \text{if } \hat{p}_1(\mathbf{z}) < \tau_{\text{gate}}.
 \end{cases}
 $$
 
@@ -434,7 +484,13 @@ $$
 
 ### 5.2 Threshold Sweep, Probability Calibration (ECE), and Selective Risk (AURC) (Table 4)
 
-We evaluate probability calibration via 15-bin Expected Calibration Error ($\text{ECE} = \sum_{m=1}^{15} \frac{|B_m|}{N} |\text{acc}(B_m) - \text{conf}(B_m)|$) and selective classification quality via the **Area Under the Risk–Coverage Curve (AURC)**. Figure 11 and Table 4 report the complete operating trajectory across $\tau_{\text{gate}} \in [0.0, 1.0]$.
+We evaluate probability calibration via 15-bin Expected Calibration Error:
+
+$$
+\text{ECE} = \sum_{m=1}^{15} \frac{|B_m|}{N} |\text{acc}(B_m) - \text{conf}(B_m)|
+$$
+
+and selective classification quality via the **Area Under the Risk–Coverage Curve (AURC)**. Figure 11 and Table 4 report the complete operating trajectory across gate thresholds from 0.0 to 1.0.
 
 <div align="center">
   <img src="results/figures/Fig11_Gate_Threshold_Sweep_and_Calibration.png" width="94%" alt="Figure 11: Gate Threshold Sweep and Calibration" />
@@ -443,7 +499,7 @@ We evaluate probability calibration via 15-bin Expected Calibration Error ($\tex
 
 **Table 4: Two-Stage Confidence-Gated Routing Sweep, Calibration ECE, and Selective Risk AURC ([`Table4_Confidence_Gated_and_Calibration.csv`](results/tables/Table4_Confidence_Gated_and_Calibration.csv))**
 
-| Routing Mode / Operating Point | Gate Threshold ($\tau_{\text{gate}}$) | Val Selected | Stage-2 Routed Samples (%) | Group-Split Test Acc (%) | Group-Split Macro-F1 | 95% Bootstrap CI (Macro-F1) | Calibration ECE ($\downarrow$) | Selective Risk AURC ($\downarrow$) |
+| Routing Mode / Operating Point | Gate Threshold ($\tau$) | Val Selected | Stage-2 Routed Samples (%) | Group-Split Test Acc (%) | Group-Split Macro-F1 | 95% Bootstrap CI (Macro-F1) | Calibration ECE ($\downarrow$) | Selective Risk AURC ($\downarrow$) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | `Stage-1 LR Only (Fast Path Always)` | 0.00 | False | **0.00%** | 97.91% | 0.9789 | $[0.9655, 0.9891]$ | **0.0094** | 0.00164 |
 | `Confidence-Gated (tau=0.60)` | 0.60 | False | 0.98% | 98.33% | 0.9825 | $[0.9697, 0.9921]$ | 0.0108 | 0.00160 |
@@ -496,7 +552,7 @@ To ensure strict real-world comparability, all latency measurements in Table 6 w
 
 | Architecture / Model | Parameter Count | Disk Size (MB) | Preprocessing Latency (ms) | Feature Extraction Latency (ms) | Classifier Latency (ms) | **End-to-End Latency (ms)** | Throughput (FPS) | Speedup vs. ResNet50 |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Stage-1 Specialist Only ($M_{10}$)** | **2,432** | **0.47 MB** (480.2 KB) | **10.15** | **10.95** | **0.48** | **21.58 ms** | **46.3 FPS** | **12.61x** |
+| **Stage-1 Specialist Only (`M10`)** | **2,432** | **0.47 MB** (480.2 KB) | **10.15** | **10.95** | **0.48** | **21.58 ms** | **46.3 FPS** | **12.61x** |
 | **Two-Stage Gated ($\tau = 0.65$, Proposed)** | **2,432 + Ens** | **4.08 MB** | **10.15** | **10.95** | **0.64** | **21.74 ms** | **46.0 FPS** | **12.51x** |
 | `MobileNetV3-Small (PyTorch)` | 2.54M | 9.80 MB | 1.82 | — | 46.88 | 48.70 ms | 20.5 FPS | 5.59x |
 | `MobileNetV2 (PyTorch)` | 3.50M | 13.60 MB | 1.82 | — | 54.60 | 56.42 ms | 17.7 FPS | 4.82x |
@@ -512,7 +568,7 @@ To test whether the learned representations generalize beyond controlled studio 
 
 Because field operators hold cameras at arbitrary angles, leaf laminae appear oriented diagonally, vertically, or inverted. `canonicalize_leaf_organ_image` ([`src/mango_edge_cv/preprocessing.py`](src/mango_edge_cv/preprocessing.py)) normalizes organ geometry:
 
-1. **Foreground Spatial Covariance:** For foreground pixels $(x_i, y_i) \in M_{\text{fg}}$, we compute spatial central moments:
+1. **Foreground Spatial Covariance:** For foreground pixels inside the organ mask, we compute spatial central moments:
 
 $$
 \mu_{20} = \frac{1}{|M_{\text{fg}}|} \sum_{(x, y) \in M_{\text{fg}}} (x - \bar{x})^2, \quad
@@ -523,12 +579,14 @@ $$
 2. **Principal Axis Rotation:** The dominant eigenvector orientation is:
 
 $$
-\theta = \frac{1}{2} \operatorname{atan2}\!\big(2\mu_{11}, \; \mu_{20} - \mu_{02}\big)
+\theta = \frac{1}{2} \text{atan2}\big(2\mu_{11}, \; \mu_{20} - \mu_{02}\big)
 $$
 
 The image is rotated by $-\theta$ so that the central midrib aligns horizontally.
-3. **Tight Lamina Bounding Box & Neutral Padding:** We crop tightly around $M_{\text{fg}}$ with a 6% boundary margin and place the organ onto neutral gray background $[232, 232, 232]$.
-4. **Foreground Luminance Normalization:** Percentile-stretches non-glare foreground $L^{\ast}$ values $[P_5, P_{95}] \to [18, 238]$.
+
+3. **Tight Lamina Bounding Box & Neutral Padding:** We crop tightly around the leaf organ with a 6% boundary margin and place the organ onto neutral gray background $[232, 232, 232]$.
+
+4. **Foreground Luminance Normalization:** Percentile-stretches non-glare foreground luminance values $[P(5), P(95)] \to [18, 238]$.
 
 <div align="center">
   <img src="results/figures/Fig14_CrossDataset_Canonical_Pose_and_CORAL.png" width="94%" alt="Figure 14: Cross-Dataset Pose and Alignment" />
@@ -547,8 +605,14 @@ The image is rotated by $-\theta$ so that the central midrib aligns horizontally
 | **`4. External MLDID (Zero-Shot Canonical Leaf Pose, Proposed)`** | **3,000** | **5** | **42.63%** | **0.4263** | **0.4263** | **0.4395** | **$[0.4247, 0.4527]$** |
 | `5. External MLDID (Canonical Pose + Unsupervised Block-CORAL)` | 3,000 | 5 | 31.43% | 0.3143 | 0.3143 | 0.3274 | $[0.3121, 0.3424]$ |
 
+For transductive Block-Shrinkage CORAL baseline comparison, feature distributions are aligned using second-order moment matching with Ledoit–Wolf shrinkage ($\lambda = 0.15$):
+
+$$
+\mathbf{X}_{\text{aligned}} = (\mathbf{X}_T - \boldsymbol{\mu}_T)\hat{\boldsymbol{\Sigma}}_T^{-1/2}\hat{\boldsymbol{\Sigma}}_S^{1/2} + \boldsymbol{\mu}_S
+$$
+
 > [!NOTE]
-> **Methodological Insight: Why Unsupervised CORAL Underperforms (31.43% vs. 42.63%):** We also implemented transductive Block-Shrinkage CORAL ($\mathbf{X}_{\text{aligned}} = (\mathbf{X}_T - \boldsymbol{\mu}_T)\hat{\boldsymbol{\Sigma}}_T^{-1/2}\hat{\boldsymbol{\Sigma}}_S^{1/2} + \boldsymbol{\mu}_S$ with Ledoit–Wolf shrinkage $\lambda = 0.15$). While CORAL slightly improves upon raw unaligned frames (31.43% vs. 31.27%), it degrades canonical-pose performance (31.43% vs. 42.63%). Unsupervised second-order moment matching assumes source and target feature covariances differ primarily by a global linear shift. In reality, external field images feature complex non-Gaussian background clutter and class-conditional lesion scale differences. Forcing global covariance equality rotates discriminative lesion decision boundaries into background noise. In contrast, geometric **Canonical Leaf Pose Normalization** operates directly on the physical leaf organ prior to feature extraction, delivering a **+11.36% accuracy and +15.09% Macro-F1 zero-shot improvement**.
+> **Methodological Insight: Why Unsupervised CORAL Underperforms (31.43% vs. 42.63%):** While CORAL slightly improves upon raw unaligned frames (31.43% vs. 31.27%), it degrades canonical-pose performance (31.43% vs. 42.63%). Unsupervised second-order moment matching assumes source and target feature covariances differ primarily by a global linear shift. In reality, external field images feature complex non-Gaussian background clutter and class-conditional lesion scale differences. Forcing global covariance equality rotates discriminative lesion decision boundaries into background noise. In contrast, geometric **Canonical Leaf Pose Normalization** operates directly on the physical leaf organ prior to feature extraction, delivering a **+11.36% accuracy and +15.09% Macro-F1 zero-shot improvement**.
 
 ---
 
@@ -557,9 +621,9 @@ The image is rotated by $-\theta$ so that the central midrib aligns horizontally
 ### 8.1 Native Resolution Confounding in `MangoLeafBD` ($N = 4,000$)
 
 As shown in Figure 15 and [`MangoLeafBD_ResolutionSummary.csv`](results/eda/MangoLeafBD_ResolutionSummary.csv), `MangoLeafBD` is geometrically heterogeneous: it comprises **1,415 Landscape ($320 \times 240$) images**, **1,187 Square ($240 \times 240$) images**, **1,271 Portrait ($240 \times 320$ / $240 \times 245$ / $240 \times 293$) images**, and 127 miscellaneous frames. Native image resolution aligns almost deterministically with disease class:
-- `Cutting_Weevil`, `Die_Back`, `Powdery_Mildew`, and `Anthracnose` are predominantly $240 \times 240$.
-- `Gall_Midge` and `Sooty_Mold` are predominantly $320 \times 240$.
-- `Bacterial_Canker` is predominantly $240 \times 320$.
+- `Cutting_Weevil`, `Die_Back`, `Powdery_Mildew`, and `Anthracnose` are predominantly 240x240.
+- `Gall_Midge` and `Sooty_Mold` are predominantly 320x240.
+- `Bacterial_Canker` is predominantly 240x320.
 
 This explains why View 5 in Table 2 achieves 59.14% accuracy from file metadata and aspect ratio alone, highlighting the vital necessity of canonical organ normalization.
 
@@ -570,7 +634,7 @@ This explains why View 5 in Table 2 achieves 59.14% accuracy from file metadata 
 
 ### 8.2 Cross-Dataset Optical Distribution Shift (`MangoLeafBD` vs. `MLDID`)
 
-Figure 16 compares the class-wise median CIE $L^{\ast}$ dynamic range ($P_{95} - P_5$) and high-frequency optical sharpness (Laplacian variance on the $128 \times 128$ grid) between `MangoLeafBD` ($N = 4,000$) and `MLDID` ($N = 3,000$, where all images are standardized to $512 \times 512$). A dramatic inversion in contrast and sharpness occurs across domains: `Bacterial_Canker` exhibits low contrast (107.0) and high sharpness (196.7) in `MangoLeafBD`, but high contrast (160.0) in `MLDID`.
+Figure 16 compares the class-wise median CIE luminance dynamic range and high-frequency optical sharpness (Laplacian variance on the $128 \times 128$ grid) between `MangoLeafBD` ($N = 4,000$) and `MLDID` ($N = 3,000$, where all images are standardized to $512 \times 512$). A dramatic inversion in contrast and sharpness occurs across domains: `Bacterial_Canker` exhibits low contrast (107.0) and high sharpness (196.7) in `MangoLeafBD`, but high contrast (160.0) in `MLDID`.
 
 <div align="center">
   <img src="results/figures/Fig16_EDA_CrossDataset_Distribution_Shift_MangoLeafBD_vs_MLDID.png" width="94%" alt="Figure 16: EDA Cross-Dataset Shift" />

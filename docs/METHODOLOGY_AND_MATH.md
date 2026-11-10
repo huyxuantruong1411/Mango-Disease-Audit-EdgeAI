@@ -13,19 +13,37 @@ This document provides the complete mathematical specification and algorithmic r
 
 ### 1.1 Connected-Component Specimen Discovery (`build_audit_groups`)
 
-Let $\mathcal{D} = \{(I_i, y_i)\}_{i=1}^{N}$ denote a plant pathology dataset of $N = 4,000$ images across $C = 8$ classes, where each class $c \in \{1,\dots,8\}$ contains $N_c = 500$ images. Because multiple photographs in studio benchmarks originate from burst captures, $90^\circ, 180^\circ, 270^\circ$ rotations, or crop-zoom variations of the *same physical leaf*, standard random train/test partitioning violates specimen independence.
-
-Within each class $c$, we construct an undirected graph $G_c = (V_c, E_c)$ where $V_c = \{1,\dots,N_c\}$ indexes the images in class $c$:
-
-#### 1. 64-Bit Structural 2D-DCT Perceptual Hash ($\text{pHash}_{64}$)
-
-Each image $I_i$ is converted to grayscale and resized via area interpolation to $I_{32} \in \mathbb{R}^{32\times32}$. Applying the orthogonal 2D Discrete Cosine Transform yields $D(I_i) = \text{DCT}_{2\text{D}}(I_{32}) \in \mathbb{R}^{32\times32}$. We retain the top-left $8\times8$ low-frequency submatrix $D_{0:8,0:8}$ and compute the median of its $63$ AC coefficients (excluding the DC term $D_{0,0}$):
+Let the plant pathology dataset be denoted by:
 
 $$
-m_{\text{AC}}(I_i) = \operatorname{median}\!\Big(\big\{D_{u,v}(I_i) : (u,v) \in \{0,\dots,7\}^2 \setminus \{(0,0)\}\big\}\Big)
+\mathcal{D} = \{(I_i, y_i)\}_{i=1}^{N}
 $$
 
-Quantizing each coefficient against $m_{\text{AC}}(I_i)$ yields a $64$-bit binary descriptor $\mathbf{b}(I_i) \in \{0,1\}^{64}$ with Hamming distance:
+comprising $N = 4,000$ images across $C = 8$ classes, where each class contains $N_c = 500$ images ($c \in \{1, \dots, 8\}$). Because multiple photographs in studio benchmarks originate from burst captures, 90°, 180°, 270° rotations, or crop-zoom variations of the *same physical leaf*, standard random train/test partitioning violates specimen independence.
+
+Within each class $c$, we construct an undirected graph:
+
+$$
+G_c = (V_c, E_c), \quad V_c = \{1, \dots, N_c\}
+$$
+
+indexing the images in class $c$:
+
+#### 1. 64-Bit Structural 2D-DCT Perceptual Hash (pHash-64)
+
+Each image is converted to grayscale and resized via area interpolation to $32 \times 32$ pixels ($I_{32}$). Applying the orthogonal 2D Discrete Cosine Transform yields:
+
+$$
+D(I_i) = \text{DCT}_{2\text{D}}(I_{32}) \in \mathbb{R}^{32\times32}
+$$
+
+We retain the top-left $8\times8$ low-frequency submatrix $D_{0:8,0:8}$ and compute the median of its 63 AC coefficients (excluding the DC term $D_{0,0}$):
+
+$$
+m_{\text{AC}}(I_i) = \text{median}\Big(\big\{D_{u,v}(I_i) : (u,v) \in \{0,\dots,7\}^2 \setminus \{(0,0)\}\big\}\Big)
+$$
+
+Quantizing each coefficient against the median threshold yields a 64-bit binary descriptor $\mathbf{b}(I_i) \in \{0,1\}^{64}$ with Hamming distance:
 
 $$
 b_{u,v}(I_i) = \mathbb{I}\!\left(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\right), \quad (u,v) \in \{0,\dots,7\}^2
@@ -37,7 +55,13 @@ $$
 
 #### 2. Rotation-Invariant Central-ROI Hue–Saturation Cosine Similarity
 
-Because $90^\circ$ or $180^\circ$ planar rotations permute 2D-DCT spatial frequencies while leaving the leaf's internal lesion color distribution invariant, we extract the central 60% sub-window $I_{\text{center}} = I[0.20H : 0.80H,\, 0.20W : 0.80W]$, resize to $64\times64$, convert to HSV, and compute a 2D Hue–Saturation histogram with $12 \times 8 = 96$ bins, $L_2$-normalized into $\mathbf{h}_i \in \mathbb{R}^{96}$ ($\|\mathbf{h}_i\|_2 = 1$). Pairwise chromatic similarity is evaluated as:
+Because planar rotations permute 2D-DCT spatial frequencies while leaving the leaf's internal lesion color distribution invariant, we extract the central 60% sub-window:
+
+$$
+I_{\text{center}} = I[0.20H : 0.80H,\, 0.20W : 0.80W]
+$$
+
+We resize to $64\times64$, convert to HSV, and compute a 2D Hue–Saturation histogram with $12 \times 8 = 96$ bins, L2-normalized into unit vector $\mathbf{h}_i \in \mathbb{R}^{96}$ ($\|\mathbf{h}_i\| = 1$). Pairwise chromatic similarity is evaluated as:
 
 $$
 s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\|\mathbf{h}_i\|_2\,\|\mathbf{h}_j\|_2 + 10^{-8}}
@@ -51,7 +75,11 @@ $$
 (i, j) \in E_c \iff \Big(d_{\text{Hamming}}(I_i, I_j) \le 6\Big) \;\lor\; \Big(s_{\text{cos}}(I_i, I_j) \ge 0.992\Big)
 $$
 
-Extracting connected components of $G_c$ yields 2,554 unique physical specimen clusters across the 4,000 images (36.15% near-duplicate sibling ratio). Enforcing `StratifiedGroupKFold` over these cluster IDs guarantees zero specimen overlap between $\mathcal{D}_{\text{train}}$, $\mathcal{D}_{\text{val}}$, and $\mathcal{D}_{\text{test}}$.
+Extracting connected components of $G_c$ yields 2,554 unique physical specimen clusters across the 4,000 images (36.15% near-duplicate sibling ratio). Enforcing `StratifiedGroupKFold` over these cluster IDs guarantees zero specimen overlap between $\mathcal{D}_{\text{train}}$, $\mathcal{D}_{\text{val}}$, and $\mathcal{D}_{\text{test}}$:
+
+$$
+\mathcal{G}_{\text{train}} \cap \mathcal{G}_{\text{val}} = \varnothing, \quad \mathcal{G}_{\text{train}} \cap \mathcal{G}_{\text{test}} = \varnothing
+$$
 
 <div align="center">
   <img src="../results/figures/Fig02_Specimen_Clustering_Graph_Mechanism.png" width="94%" alt="Figure 2: Specimen-Identity Graph Clustering" />
@@ -60,13 +88,17 @@ Extracting connected components of $G_c$ yields 2,554 unique physical specimen c
 
 ### 1.2 Five-View Studio Background Shortcut Protocol (`run_background_shortcut_audit`)
 
-To decouple biological foliar symptoms from studio capture artifacts, we define five transformation operators $\mathcal{V}_1, \dots, \mathcal{V}_5$ on each image $I$ and its foreground organ mask $M_{\text{fg}} \in \{0, 1\}^{H\times W}$:
+To decouple biological foliar symptoms from studio capture artifacts, we evaluate five experimental perspectives on each image $I$ and its foreground organ mask:
 
-- **View 1 (Whole ROI, $r=0.86$):** $\mathcal{V}_1(I) = \text{Resize}_{256}\big(\text{CenterCrop}_{0.86}(I)\big) \implies \mathbf{f}_{137\text{D}} = [\mathbf{f}_{\text{hsv}};\, \mathbf{f}_{\text{lab}};\, \mathbf{f}_{\text{lbp}}] \in \mathbb{R}^{137}$ (98.33% Acc).
-- **View 2 (Segmented Organ Only):** $\mathcal{V}_2(I) = \mathcal{V}_1(I) \odot M_{\text{fg}} \implies \mathbf{f}_{137\text{D}}$ (94.84% Acc).
-- **View 3 (Background Only, Organ Masked Out):** $\mathcal{V}_3(I) = \mathcal{V}_1(I) \odot (1 - M_{\text{fg}}) \implies \mathbf{f}_{137\text{D}}$ (94.84% Acc).
-- **View 4 (Four $32\times32$ Corner Patches Only):** Retains only the four $32\times32$ corner regions on a $192\times192$ frame ($\frac{4 \times 1024}{192^2} = 11.1\%$ or $6.25\%$ on $256^2$) $\implies \mathbf{f}_{137\text{D}}$ (85.08% Acc).
-- **View 5 (File Metadata Only):** Non-visual vector $\mathbf{m} = [\text{FileSizeKB},\, \bar{R},\, \bar{G},\, \bar{B},\, \sigma_{\text{RGB}},\, r_{\text{fg}},\, \text{AspectRatio}]^\top \in \mathbb{R}^7$ (59.14% Acc).
+- **View 1 (Whole ROI, $r=0.86$):** Center-cropped frame $\implies \mathbf{f} \in \mathbb{R}^{137}$ (98.33% Acc).
+- **View 2 (Segmented Organ Only):** `I_fg = I * M_fg` (studio background zeroed) $\implies \mathbf{f} \in \mathbb{R}^{137}$ (94.84% Acc).
+- **View 3 (Background Only, Organ Masked Out):** `I_bg = I * (1 - M_fg)` (**zero leaf pixels**) $\implies \mathbf{f} \in \mathbb{R}^{137}$ (94.84% Acc).
+- **View 4 (Four $32\times32$ Corner Patches Only):** Retains only the four $32\times32$ corner regions $\implies \mathbf{f} \in \mathbb{R}^{137}$ (85.08% Acc).
+- **View 5 (File Metadata Only):** Non-visual metadata vector (59.14% Acc):
+
+$$
+\mathbf{m} = [\text{FileSizeKB},\, \bar{R},\, \bar{G},\, \bar{B},\, \sigma_{\text{RGB}},\, r_{\text{fg}},\, \text{AspectRatio}]^\top \in \mathbb{R}^7
+$$
 
 ---
 
@@ -74,17 +106,23 @@ To decouple biological foliar symptoms from studio capture artifacts, we define 
 
 ### 2.1 Hybrid Otsu–Chroma Foreground Organ Segmentation (`segment_plant_organ_roi`)
 
-Given an input image standardized via center-crop ($r = 0.88$) to $I \in \{0,\dots,255\}^{256\times256\times3}$, let $(H, S, V)$ and $(L^{\ast}, a^{\ast}, b^{\ast})$ denote its 8-bit HSV and CIE-LAB representations. The per-pixel chromaticity salience score is defined as:
+Given an input image standardized via center-crop ($r = 0.88$) to $256 \times 256 \times 3$, let $(H, S, V)$ and $(L^{\ast}, a^{\ast}, b^{\ast})$ denote its 8-bit HSV and CIE-LAB representations. The per-pixel chromaticity salience score is defined as:
 
 $$
 C^{\ast}(x, y) = \sqrt{\big(a^{\ast}(x, y) - 128\big)^2 + \big(b^{\ast}(x, y) - 128\big)^2}
 $$
 
 $$
-S_{\text{roi}}(x, y) = \operatorname{clip}\!\Big(\operatorname{round}\!\big(0.60\,S(x, y) + 1.25\,C^{\ast}(x, y)\big), \; 0, \; 255\Big)
+S_{\text{roi}}(x, y) = \text{clip}\Big(\text{round}\big(0.60\,S(x, y) + 1.25\,C^{\ast}(x, y)\big), \; 0, \; 255\Big)
 $$
 
-An initial binary mask $M_0(x, y) = \mathbb{I}(S_{\text{roi}}(x, y) > T_{\text{Otsu}})$ is refined by suppressing studio backdrop pixels where:
+An initial binary mask is generated via Otsu thresholding:
+
+$$
+M_0(x, y) = \mathbb{I}\big(S_{\text{roi}}(x, y) > T_{\text{Otsu}}\big)
+$$
+
+and refined by suppressing studio backdrop pixels where:
 
 $$
 \big(V(x, y) > 230 \land S(x, y) < 28\big) \lor \big(V(x, y) < 15\big)
@@ -103,34 +141,52 @@ All three restoration gates are conditioned on physical measurements evaluated s
 
 #### 1. Donoho–Johnstone MAD Sensor Grain Gate (`_estimate_noise_sigma_mad`)
 
-Let $R(x, y) = I_{\text{gray}}(x, y) - \operatorname{MedianBlur}_{3\times3}(I_{\text{gray}})(x, y)$ for $(x, y) \in M_{\text{fg}}$. The robust noise scale is:
+We isolate high-frequency spatial residuals on the grayscale leaf foreground:
 
 $$
-\hat{\sigma}_{\text{MAD}} = \frac{\operatorname{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \operatorname{median}(R)|\big)}{0.6745}
+R(x, y) = I_{\text{gray}}(x, y) - \text{MedianBlur}_{3\times3}(I_{\text{gray}})(x, y), \quad (x, y) \in M_{\text{fg}}
+$$
+
+The robust noise scale is:
+
+$$
+\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
 $$
 
 $$
 I^{(1)} = \begin{cases}
-\operatorname{GaussianBlur}_{3\times3}\!\big(\operatorname{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
-\operatorname{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
+\text{GaussianBlur}_{3\times3}\!\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
+\text{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
 I & \text{if } \hat{\sigma}_{\text{MAD}} < 5.5.
 \end{cases}
 $$
 
 #### 2. Central-Window Specular Flash Glare Gate (`apply_glare_inpainting`)
 
-Inside the central 72% window $\Omega_{\text{center}} = [0.14H:0.86H,\, 0.14W:0.86W] \cap M_{\text{fg}}$, candidate specular glare pixels are identified by $M_{\text{glare}}(x, y) = \mathbb{I}\big(V(x, y) > 238 \land S(x, y) < 38\big)$. If the foreground glare ratio $r_{\text{glare}} = \frac{|M_{\text{glare}}|}{|M_{\text{fg}}|}$ lies in $[0.003, 0.220]$, $M_{\text{glare}}$ is dilated with a $5\times5$ elliptical element $M_{\text{glare}}^{\oplus}$ and replaced by an $11\times11$ Gaussian neighborhood fill ($\sigma = 2.5$):
+Inside the central 72% window:
+
+$$
+\Omega_{\text{center}} = [0.14H : 0.86H, \; 0.14W : 0.86W] \cap M_{\text{fg}}
+$$
+
+candidate specular glare pixels are identified by $V(x, y) > 238 \land S(x, y) < 38$. If the foreground glare ratio satisfies $0.003 \le r_{\text{glare}} \le 0.220$, $M_{\text{glare}}$ is dilated with a $5\times5$ elliptical element $M_{\text{glare}}^{\oplus}$ and replaced by an $11\times11$ Gaussian neighborhood fill ($\sigma = 2.5$):
 
 $$
 I^{(2)}(x, y) = \begin{cases}
-\operatorname{GaussianBlur}_{11\times11}(I^{(1)}, \; \sigma = 2.5)(x, y) & \text{if } (x, y) \in M_{\text{glare}}^{\oplus} \land r_{\text{glare}} \in [0.003, 0.220], \\
+\text{GaussianBlur}_{11\times11}(I^{(1)}, \; \sigma = 2.5)(x, y) & \text{if } (x, y) \in M_{\text{glare}}^{\oplus} \land 0.003 \le r_{\text{glare}} \le 0.220, \\
 I^{(1)}(x, y) & \text{otherwise.}
 \end{cases}
 $$
 
 #### 3. Foreground-Restricted CIE $L^{\ast}$ Percentile Stretch and Mild CLAHE
 
-Let $\Omega_{\text{valid}} = M_{\text{fg}} \setminus M_{\text{glare}}^{\oplus}$. If $\sigma(L^{\ast}_{\Omega_{\text{valid}}}) < 38.0$ or $P_{95}(L^{\ast}_{\Omega_{\text{valid}}}) - P_5(L^{\ast}_{\Omega_{\text{valid}}}) < 132.0$, we linearly stretch $[P_2, P_{98}] \to [12, 242]$ and apply CLAHE ($\text{clipLimit} = 1.55$, $8\times8$ tiles) exclusively on $\Omega_{\text{valid}}$.
+Let non-glare foreground pixels be denoted by:
+
+$$
+\Omega_{\text{valid}} = M_{\text{fg}} \setminus M_{\text{glare}}^{\oplus}
+$$
+
+If foreground contrast is compressed ($\sigma(L^{\ast}) < 38.0$ or $P(95) - P(5) < 132.0$), we linearly stretch $[P(2), P(98)] \to [12, 242]$ and apply CLAHE ($\text{clipLimit} = 1.55$, $8\times8$ tiles) exclusively on $\Omega_{\text{valid}}$.
 
 <div align="center">
   <img src="../results/figures/Fig06_Quality_Gate_MAD_Glare_CLAHE_Proof.png" width="94%" alt="Figure 6: Quality Gate Proof" />
@@ -151,7 +207,7 @@ G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ +1 & +2 & +1 \end{bmatrix} \a
 $$
 
 $$
-M = \sqrt{G_x^2 + G_y^2}, \quad \Theta = \left(\operatorname{atan2}(G_y, G_x) \cdot \frac{180}{\pi}\right) \bmod 180^\circ
+M = \sqrt{G_x^2 + G_y^2}, \quad \Theta = \left(\text{atan2}(G_y, G_x) \cdot \frac{180}{\pi}\right) \bmod 180^\circ
 $$
 
 The concatenated raw feature vector $\mathbf{x} \in \mathbb{R}^{2,003}$ comprises:
@@ -167,7 +223,13 @@ $$
 
 ### 3.2 Energy-Balanced Block-PCA Subspace Projection (`BlockPCACompressor`)
 
-Partitioning $\mathbf{x}$ into the 239D chromatic-texture-quality block $\mathbf{x}_{\text{ct}} = \mathbf{x}_{0:239} \in \mathbb{R}^{239}$ and the 1,764D spatial gradient block $\mathbf{x}_{\text{hog}} = \mathbf{x}_{239:2003} \in \mathbb{R}^{1,764}$, `BlockPCACompressor` fits two separate Z-score standardizers on $\mathcal{D}_{\text{train}}$, projects $\tilde{\mathbf{x}}_{\text{hog}}$ onto its top $k = 64$ unwhitened principal components $\mathbf{z}_{\text{hog}} = \mathbf{U}_{64}^\top \tilde{\mathbf{x}}_{\text{hog}} \in \mathbb{R}^{64}$, and balances block RMS energy with $\gamma = 0.45$:
+Partitioning raw features $\mathbf{x}$ into the 239D chromatic-texture-quality block and the 1,764D spatial gradient block:
+
+$$
+\mathbf{x} = [\mathbf{x}_{\text{ct}}; \; \mathbf{x}_{\text{hog}}] \in \mathbb{R}^{2,003}, \quad \mathbf{x}_{\text{ct}} \in \mathbb{R}^{239}, \quad \mathbf{x}_{\text{hog}} \in \mathbb{R}^{1,764}
+$$
+
+`BlockPCACompressor` fits two separate Z-score standardizers on the training split, projects centered HOG features onto their top $k = 64$ unwhitened principal components $\mathbf{z}_{\text{hog}} \in \mathbb{R}^{64}$, and balances block RMS energy with $\gamma = 0.45$:
 
 $$
 \alpha_{\text{hog}} = 0.45 \cdot \frac{\sqrt{\frac{1}{239 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \|\tilde{\mathbf{x}}_{\text{ct},i}\|_2^2}}{\sqrt{\frac{1}{64 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \|\mathbf{z}_{\text{hog},i}\|_2^2} + 10^{-8}}, \qquad \mathbf{z} = \begin{bmatrix} \tilde{\mathbf{x}}_{\text{ct}} \\ \alpha_{\text{hog}}\mathbf{z}_{\text{hog}} \end{bmatrix} \in \mathbb{R}^{303}
@@ -188,7 +250,7 @@ $$
 P_1(y = c \mid \mathbf{z}) = \frac{\exp\!\big(s_{1,c}(\mathbf{z}) / T^{\ast}\big)}{\sum_{k=1}^{8} \exp\!\big(s_{1,k}(\mathbf{z}) / T^{\ast}\big)}
 $$
 
-When $\max_{c} P_1(y = c \mid \mathbf{z}) < \tau_{\text{gate}} = 0.65$ (1.53% of test samples), the sample is routed to the Stage-2 nonlinear specialist ensemble:
+When calibrated Stage-1 confidence is below threshold $\tau_{\text{gate}} = 0.65$ (1.53% of test samples), the sample is routed to the Stage-2 nonlinear specialist ensemble:
 
 $$
 P_2(y \mid \mathbf{z}) = 0.55\,P_{\text{RBF-SVM}}(y \mid \mathbf{z}) + 0.30\,P_{\text{MLP-128}}(y \mid \mathbf{z}) + 0.15\,P_{\text{Cosine-kNN}}(y \mid \mathbf{z})
@@ -207,13 +269,13 @@ $$
 
 ## 5. Pillar VI: Eigenvector Canonical Leaf Pose Normalization (`src/mango_edge_cv/preprocessing.py`)
 
-For cross-dataset transfer (`MangoLeafBD` $\to$ `MLDID`), `canonicalize_leaf_organ_image` computes the $2\times2$ spatial covariance matrix of foreground coordinates $(x_i, y_i) \in M_{\text{fg}}$, extracts the principal eigenvector orientation:
+For cross-dataset transfer (`MangoLeafBD` $\to$ `MLDID`), `canonicalize_leaf_organ_image` computes the $2\times2$ spatial covariance matrix of foreground coordinates $(x, y) \in M_{\text{fg}}$, extracts the principal eigenvector orientation:
 
 $$
-\theta = \frac{1}{2}\operatorname{atan2}(2\mu_{11}, \; \mu_{20} - \mu_{02})
+\theta = \frac{1}{2}\text{atan2}(2\mu_{11}, \; \mu_{20} - \mu_{02})
 $$
 
-rotates the organ by $-\theta$ so the midrib lies horizontally, crops tightly to the organ bounding box (6% margin) over neutral gray $[232, 232, 232]$, and normalizes foreground $L^{\ast}$ percentiles $[P_5, P_{95}] \to [18, 238]$.
+rotates the organ by $-\theta$ so the midrib lies horizontally, crops tightly to the organ bounding box (6% margin) over neutral gray $[232, 232, 232]$, and normalizes foreground luminance percentiles $[P(5), P(95)] \to [18, 238]$.
 
 <div align="center">
   <img src="../results/figures/Fig14_CrossDataset_Canonical_Pose_and_CORAL.png" width="94%" alt="Figure 14: Canonical Leaf Pose" />
