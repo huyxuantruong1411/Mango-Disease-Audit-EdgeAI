@@ -22,20 +22,25 @@ for path in md_files:
     # 2. Check for raw ^*
     raw_stars = re.findall(r'\^\*', content)
 
-    # 3. Check for double dollar count parity
+    # 3. Check for \! which renders as literal !
+    bangs = re.findall(r'\\!', content)
+
+    # 4. Check for sizing commands with curly braces
+    sizing_braces = re.findall(r'\\(big|Big|bigg|Bigg|left|right)\s*\\?[\{\}]', content)
+
+    # 5. Check for single-backslash \{ or \} (use \lbrace / \rbrace instead)
+    raw_braces = re.findall(r'(?<!\\)\\\{|(?<!\\)\\\}', content)
+
+    # 6. Check for double dollar count parity
     double_dollars = content.count("$$")
 
-    # 4. Check for nested > $$
+    # 7. Check for nested > $$
     quote_math = re.findall(r'>\s*\$\$', content)
 
-    # 5. Check display math blocks formatting
-    display_blocks = re.findall(r'\$\$(.*?)\$\$', content, re.DOTALL)
-
-    # 6. Check blank lines around $$
+    # 8. Check blank lines around $$
     blank_line_issues = 0
     in_math = False
     for idx, line in enumerate(lines):
-        line_num = idx + 1
         stripped = line.strip()
         if stripped == '$$':
             if not in_math:
@@ -47,14 +52,19 @@ for path in md_files:
                 if idx + 1 < len(lines) and lines[idx + 1].strip() != '':
                     blank_line_issues += 1
 
+    display_blocks = len(re.findall(r'\$\$(.*?)\$\$', content, re.DOTALL))
+
     print(f"File: {rel_path}")
     print(f"  - \\operatorname occurrences: {len(ops)}")
     print(f"  - Raw ^* occurrences: {len(raw_stars)}")
-    print(f"  - Display blocks ($$): {len(display_blocks)} (pairs: {double_dollars // 2})")
+    print(f"  - \\! occurrences: {len(bangs)}")
+    print(f"  - Sizing curly brace issues: {len(sizing_braces)}")
+    print(f"  - Raw \\{{ or \\}} occurrences: {len(raw_braces)}")
+    print(f"  - Display blocks ($$): {display_blocks} (pairs: {double_dollars // 2})")
     print(f"  - Nested > $$ occurrences: {len(quote_math)}")
     print(f"  - Blank line issues around $$: {blank_line_issues}")
 
-    if ops or raw_stars or (double_dollars % 2 != 0) or quote_math or blank_line_issues:
+    if ops or raw_stars or bangs or sizing_braces or raw_braces or (double_dollars % 2 != 0) or quote_math or blank_line_issues:
         all_good = False
         print(f"    --> ISSUES DETECTED IN {rel_path}!")
     else:

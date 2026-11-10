@@ -16,15 +16,15 @@ This document provides the complete mathematical specification and algorithmic r
 Let the plant pathology dataset be denoted by:
 
 $$
-\mathcal{D} = \{(I_i, y_i)\}_{i=1}^{N}
+\mathcal{D} = \lbrace (I_i, y_i) \rbrace_{i=1}^{N}
 $$
 
-comprising $N = 4,000$ images across $C = 8$ classes, where each class contains $N_c = 500$ images ($c \in \{1, \dots, 8\}$). Because multiple photographs in studio benchmarks originate from burst captures, 90°, 180°, 270° rotations, or crop-zoom variations of the *same physical leaf*, standard random train/test partitioning violates specimen independence.
+comprising $N = 4,000$ images across $C = 8$ classes, where each class contains $N_c = 500$ images ($c \in \lbrace 1, \dots, 8 \rbrace$). Because multiple photographs in studio benchmarks originate from burst captures, 90°, 180°, 270° rotations, or crop-zoom variations of the *same physical leaf*, standard random train/test partitioning violates specimen independence.
 
 Within each class $c$, we construct an undirected graph:
 
 $$
-G_c = (V_c, E_c), \quad V_c = \{1, \dots, N_c\}
+G_c = (V_c, E_c), \quad V_c = \lbrace 1, \dots, N_c \rbrace
 $$
 
 indexing the images in class $c$:
@@ -40,17 +40,17 @@ $$
 We retain the top-left $8\times8$ low-frequency submatrix $D_{0:8,0:8}$ and compute the median of its 63 AC coefficients (excluding the DC term $D_{0,0}$):
 
 $$
-m_{\text{AC}}(I_i) = \text{median}\Big(\big\{D_{u,v}(I_i) : (u,v) \in \{0,\dots,7\}^2 \setminus \{(0,0)\}\big\}\Big)
+m_{\text{AC}}(I_i) = \text{median}_{(u, v) \neq (0, 0)} D_{u,v}(I_i), \quad (u, v) \in \lbrace 0, \dots, 7 \rbrace^2
 $$
 
-Quantizing each coefficient against the median threshold yields a 64-bit binary descriptor $\mathbf{b}(I_i) \in \{0,1\}^{64}$ with Hamming distance:
+Quantizing each coefficient against the median threshold yields a 64-bit binary descriptor $\mathbf{b}(I_i) \in \lbrace 0, 1 \rbrace^{64}$ with Hamming distance:
 
 $$
-b_{u,v}(I_i) = \mathbb{I}\!\left(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\right), \quad (u,v) \in \{0,\dots,7\}^2
+b_{u,v}(I_i) = \mathbb{I}\big(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\big), \quad (u, v) \in \lbrace 0, \dots, 7 \rbrace^2
 $$
 
 $$
-d_{\text{Hamming}}(I_i, I_j) = \|\mathbf{b}(I_i) \oplus \mathbf{b}(I_j)\|_1 = \sum_{u=0}^{7}\sum_{v=0}^{7} \mathbb{I}\!\left(b_{u,v}(I_i) \neq b_{u,v}(I_j)\right)
+d_{\text{Hamming}}(I_i, I_j) = \Vert \mathbf{b}(I_i) \oplus \mathbf{b}(I_j) \Vert_1 = \sum_{u=0}^{7}\sum_{v=0}^{7} \mathbb{I}\big(b_{u,v}(I_i) \neq b_{u,v}(I_j)\big)
 $$
 
 #### 2. Rotation-Invariant Central-ROI Hue–Saturation Cosine Similarity
@@ -61,10 +61,10 @@ $$
 I_{\text{center}} = I[0.20H : 0.80H,\, 0.20W : 0.80W]
 $$
 
-We resize to $64\times64$, convert to HSV, and compute a 2D Hue–Saturation histogram with $12 \times 8 = 96$ bins, L2-normalized into unit vector $\mathbf{h}_i \in \mathbb{R}^{96}$ ($\|\mathbf{h}_i\| = 1$). Pairwise chromatic similarity is evaluated as:
+We resize to $64\times64$, convert to HSV, and compute a 2D Hue–Saturation histogram with $12 \times 8 = 96$ bins, L2-normalized into unit vector $\mathbf{h}_i \in \mathbb{R}^{96}$ ($\Vert \mathbf{h}_i \Vert = 1$). Pairwise chromatic similarity is evaluated as:
 
 $$
-s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\|\mathbf{h}_i\|_2\,\|\mathbf{h}_j\|_2 + 10^{-8}}
+s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\Vert \mathbf{h}_i \Vert_2 \, \Vert \mathbf{h}_j \Vert_2 + 10^{-8}}
 $$
 
 #### 3. Adjacency Criterion and Connected Components
@@ -128,7 +128,7 @@ $$
 \big(V(x, y) > 230 \land S(x, y) < 28\big) \lor \big(V(x, y) < 15\big)
 $$
 
-clearing a 3% frame border margin, and applying morphological closing ($7\times7$ ellipse, 2 iterations) followed by opening (1 iteration). Among all 8-connected foreground components $\{C_k\}$, we select the largest component $C_{k^{\ast}}$ provided its area satisfies $0.04 \le \frac{|C_{k^{\ast}}|}{256^2} \le 0.92$.
+clearing a 3% frame border margin, and applying morphological closing ($7\times7$ ellipse, 2 iterations) followed by opening (1 iteration). Among all 8-connected foreground components $\lbrace C_k \rbrace$, we select the largest component $C_{k^{\ast}}$ provided its area satisfies $0.04 \le \frac{|C_{k^{\ast}}|}{256^2} \le 0.92$.
 
 <div align="center">
   <img src="../results/figures/Fig05_Hybrid_ROI_Segmentation_StepByStep.png" width="94%" alt="Figure 5: Hybrid ROI Segmentation" />
@@ -150,12 +150,12 @@ $$
 The robust noise scale is:
 
 $$
-\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
+\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
 $$
 
 $$
 I^{(1)} = \begin{cases}
-\text{GaussianBlur}_{3\times3}\!\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
+\text{GaussianBlur}_{3\times3}\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
 \text{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
 I & \text{if } \hat{\sigma}_{\text{MAD}} < 5.5.
 \end{cases}
@@ -232,7 +232,7 @@ $$
 `BlockPCACompressor` fits two separate Z-score standardizers on the training split, projects centered HOG features onto their top $k = 64$ unwhitened principal components $\mathbf{z}_{\text{hog}} \in \mathbb{R}^{64}$, and balances block RMS energy with $\gamma = 0.45$:
 
 $$
-\alpha_{\text{hog}} = 0.45 \cdot \frac{\sqrt{\frac{1}{239 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \|\tilde{\mathbf{x}}_{\text{ct},i}\|_2^2}}{\sqrt{\frac{1}{64 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \|\mathbf{z}_{\text{hog},i}\|_2^2} + 10^{-8}}, \qquad \mathbf{z} = \begin{bmatrix} \tilde{\mathbf{x}}_{\text{ct}} \\ \alpha_{\text{hog}}\mathbf{z}_{\text{hog}} \end{bmatrix} \in \mathbb{R}^{303}
+\alpha_{\text{hog}} = 0.45 \cdot \frac{\sqrt{\frac{1}{239 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \Vert\tilde{\mathbf{x}}_{\text{ct},i}\Vert_2^2}}{\sqrt{\frac{1}{64 N_{\text{tr}}}\sum_{i=1}^{N_{\text{tr}}} \Vert\mathbf{z}_{\text{hog},i}\Vert_2^2} + 10^{-8}}, \qquad \mathbf{z} = \begin{bmatrix} \tilde{\mathbf{x}}_{\text{ct}} \\ \alpha_{\text{hog}}\mathbf{z}_{\text{hog}} \end{bmatrix} \in \mathbb{R}^{303}
 $$
 
 <div align="center">
@@ -247,7 +247,7 @@ $$
 Given $\mathbf{z} \in \mathbb{R}^{303}$, Stage 1 evaluates a multinomial L2-regularized Logistic Regression classifier ($C = 0.35$) whose logits $\mathbf{s}_1(\mathbf{z}) \in \mathbb{R}^8$ are calibrated via validation NLL minimization ($T^{\ast} = 0.758$):
 
 $$
-P_1(y = c \mid \mathbf{z}) = \frac{\exp\!\big(s_{1,c}(\mathbf{z}) / T^{\ast}\big)}{\sum_{k=1}^{8} \exp\!\big(s_{1,k}(\mathbf{z}) / T^{\ast}\big)}
+P_1(y = c \mid \mathbf{z}) = \frac{\exp\big(s_{1,c}(\mathbf{z}) / T^{\ast}\big)}{\sum_{k=1}^{8} \exp\big(s_{1,k}(\mathbf{z}) / T^{\ast}\big)}
 $$
 
 When calibrated Stage-1 confidence is below threshold $\tau_{\text{gate}} = 0.65$ (1.53% of test samples), the sample is routed to the Stage-2 nonlinear specialist ensemble:

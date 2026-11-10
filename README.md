@@ -28,7 +28,7 @@ This repository provides the official, bit-for-bit reproducible implementation o
 
 - **Pillar IV (Temperature-Calibrated Two-Stage Confidence-Gated Classification):** A temperature-scaled Stage-1 linear specialist ($T^{\ast} = 0.758$, Expected Calibration Error $\text{ECE} = 0.0094$) classifies **98.47% of test specimens on the fast path in 0.48 ms** of classifier time. Only **1.53% of ambiguous boundary cases** ($\tau_{\text{gate}} = 0.65$) are selectively escalated to a heterogeneous Stage-2 nonlinear ensemble (Platt-calibrated RBF-SVM, single-hidden-layer MLP, and cosine kNN), elevating accuracy to **98.47% (0.9836 Macro-F1)** with an ultra-compact **480.2 KB footprint** and selective risk $\text{AURC} = 0.00158$.
 
-- **Pillar V (Multi-Severity Perturbation Robustness and Single-Core CPU Profiling):** End-to-end single-core edge CPU latency is **21.58 ms (46.3 FPS)** for Stage-1 and **21.74 ms (46.0 FPS)** for the gated system on standard x86-64 hardware—operating **$2.26\times$ to $12.61\times$ faster** than MobileNetV3-Small (48.70 ms), MobileNetV2 (56.42 ms), and ResNet50 (272.04 ms) while maintaining robustness under sensor noise ($\sigma \in \{5, 10, 20\}$), specular flash glare, and low-light underexposure (-40%).
+- **Pillar V (Multi-Severity Perturbation Robustness and Single-Core CPU Profiling):** End-to-end single-core edge CPU latency is **21.58 ms (46.3 FPS)** for Stage-1 and **21.74 ms (46.0 FPS)** for the gated system on standard x86-64 hardware—operating **$2.26\times$ to $12.61\times$ faster** than MobileNetV3-Small (48.70 ms), MobileNetV2 (56.42 ms), and ResNet50 (272.04 ms) while maintaining robustness under sensor noise ($\sigma \in \lbrace 5, 10, 20 \rbrace$), specular flash glare, and low-light underexposure (-40%).
 
 - **Pillar VI (External Cross-Dataset Generalization and Canonical Leaf Pose):** Evaluating the in-domain classifier directly on 3,000 external Indian field images from `MLDID` yields 31.27% accuracy (0.2886 Macro-F1). By computing the principal spatial covariance eigenvector of the leaf mask and rotating the organ to an orientation-normalized horizontal canonical pose prior to feature extraction, zero-shot transfer jumps to **42.63% accuracy and 0.4395 Macro-F1** (**+11.36% accuracy and +15.09% Macro-F1 absolute gain**), decisively outperforming unsupervised transductive feature alignment (CORAL, 31.43%).
 
@@ -99,11 +99,11 @@ During agricultural image acquisition, field operators commonly capture multiple
 To audit and eliminate specimen leakage without relying on unreliable filenames, we construct an undirected graph for each disease class using `build_audit_groups` ([`src/mango_edge_cv/audit.py`](src/mango_edge_cv/audit.py)):
 
 $$
-G_c = (V_c, E_c), \quad c \in \{1, \dots, 8\}
+G_c = (V_c, E_c), \quad c \in \lbrace 1, \dots, 8 \rbrace
 $$
 
 $$
-V_c = \{1, \dots, N_c\}, \quad N_c = 500
+V_c = \lbrace 1, \dots, N_c \rbrace, \quad N_c = 500
 $$
 
 where each index represents an image belonging to disease class $c$.
@@ -119,17 +119,17 @@ $$
 We extract the top-left $8 \times 8$ low-frequency submatrix. Excluding the DC component $(0, 0)$, the adaptive AC median threshold is computed as:
 
 $$
-m_{\text{AC}}(I_i) = \text{median}\Big(\big\{D_{u,v}(I_i) : (u, v) \in \{0, \dots, 7\}^2 \setminus \{(0, 0)\}\big\}\Big)
+m_{\text{AC}}(I_i) = \text{median}_{(u, v) \neq (0, 0)} D_{u,v}(I_i), \quad (u, v) \in \lbrace 0, \dots, 7 \rbrace^2
 $$
 
 The 64-bit binary perceptual hash and pairwise Hamming distance are defined as:
 
 $$
-b_{u,v}(I_i) = \mathbb{I}\!\left(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\right), \quad (u, v) \in \{0, \dots, 7\}^2
+b_{u,v}(I_i) = \mathbb{I}\left(D_{u,v}(I_i) > m_{\text{AC}}(I_i)\right), \quad (u, v) \in \lbrace 0, \dots, 7 \rbrace^2
 $$
 
 $$
-d_{\text{Hamming}}(I_i, I_j) = \sum_{u=0}^{7} \sum_{v=0}^{7} \mathbb{I}\!\left(b_{u,v}(I_i) \neq b_{u,v}(I_j)\right)
+d_{\text{Hamming}}(I_i, I_j) = \sum_{u=0}^{7} \sum_{v=0}^{7} \mathbb{I}\left(b_{u,v}(I_i) \neq b_{u,v}(I_j)\right)
 $$
 
 #### 2. Rotation-Invariant Central-ROI Chromatic Cosine Similarity
@@ -143,7 +143,7 @@ $$
 We resize the central window to $64 \times 64$, convert to HSV space, and compute a joint 2D Hue–Saturation histogram (12 Hue bins, 8 Saturation bins). Flattening and L2-normalizing yields a 96-dimensional unit vector $\mathbf{h}_i$. Chromatic similarity is evaluated as:
 
 $$
-s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\|\mathbf{h}_i\|_2 \, \|\mathbf{h}_j\|_2 + 10^{-8}}
+s_{\text{cos}}(I_i, I_j) = \frac{\langle \mathbf{h}_i, \mathbf{h}_j \rangle}{\Vert \mathbf{h}_i \Vert_2 \, \Vert \mathbf{h}_j \Vert_2 + 10^{-8}}
 $$
 
 #### 3. Connected-Component Specimen Clustering
@@ -265,14 +265,14 @@ $$
 Using the robust Median Absolute Deviation (MAD) scale estimator for Gaussian noise ($\Phi^{-1}(0.75) \approx 0.6745$):
 
 $$
-\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\!\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
+\hat{\sigma}_{\text{MAD}} = \frac{\text{median}_{(x, y) \in M_{\text{fg}}}\big(|R(x, y) - \text{median}(R)|\big)}{0.6745}
 $$
 
 The conditional smoothing policy is defined as:
 
 $$
 I^{(1)} = \begin{cases}
-\text{GaussianBlur}_{3\times3}\!\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
+\text{GaussianBlur}_{3\times3}\big(\text{MedianBlur}_{3\times3}(I), \; \sigma = 0.65\big) & \text{if } \hat{\sigma}_{\text{MAD}} \ge 10.0, \\
 \text{GaussianBlur}_{3\times3}(I, \; \sigma = 0.55) & \text{if } 5.5 \le \hat{\sigma}_{\text{MAD}} < 10.0, \\
 I & \text{if } \hat{\sigma}_{\text{MAD}} < 5.5.
 \end{cases}
@@ -341,7 +341,7 @@ The resulting derivatives are shared across Branches 4, 6, and 7. All histograms
 
 - **Branch 1 — Foreground HSV Color Histograms & Moments (52D):** 16 Hue bins, 16 Saturation bins, 16 Value bins, plus mean and standard deviation of each channel ($16 \times 3 + 4 = 52\text{D}$).
 - **Branch 2 — Foreground CIE-LAB Color Histograms & Moments (57D):** 16 $L^{\ast}$ bins, 16 $a^{\ast}$ bins, 16 $b^{\ast}$ bins, 3 channel means, 3 channel standard deviations, and 3 skewness moments ($16 \times 3 + 9 = 57\text{D}$).
-- **Branch 3 — Fast Lookup-Table Uniform LBP (28D):** Evaluated at radii $R \in \{1, 2\}$ using a static 256-entry lookup table mapping 8-bit neighbors to uniform bins ($10 + 10 = 20\text{D}$) plus 8 spatial sub-patch entropy measures ($20 + 8 = 28\text{D}$).
+- **Branch 3 — Fast Lookup-Table Uniform LBP (28D):** Evaluated at radii $R \in \lbrace 1, 2 \rbrace$ using a static 256-entry lookup table mapping 8-bit neighbors to uniform bins ($10 + 10 = 20\text{D}$) plus 8 spatial sub-patch entropy measures ($20 + 8 = 28\text{D}$).
 - **Branch 4 — Shared-Sobel Histogram of Oriented Gradients (1,764D):** Reuses precomputed Sobel gradient fields. Computed over $16 \times 16$ pixel blocks with $8 \times 8$ pixel cells, 8 orientation bins, and 50% block overlap ($14 \times 14 \times 9 = 1,764\text{D}$).
 - **Branch 5 — Five-Patch Spatial Grid Moments (45D):** Evaluates mean, standard deviation, and median across 5 spatial patches (top-left, top-right, bottom-left, bottom-right, and center) across RGB channels ($5 \times 3 \times 3 = 45\text{D}$).
 - **Branch 6 — Multi-Grid Chromatic-Texture Descriptors (MGCT, 50D):** $2 \times 2$ spatial grid evaluating local color entropy, gradient variance, and saturation co-occurrence.
@@ -443,13 +443,13 @@ $$
 To ensure that predicted probabilities reflect true empirical accuracy, a scalar temperature $T > 0$ is optimized on the validation split by minimizing cross-entropy Negative Log-Likelihood (NLL) without altering class rankings:
 
 $$
-T^{\ast} = \arg\min_{T \in [0.05, 5.0]} -\frac{1}{|\mathcal{D}_{\text{val}}|} \sum_{(\mathbf{z}_i, y_i) \in \mathcal{D}_{\text{val}}} \log \frac{\exp\!\big(s_{1,y_i}(\mathbf{z}_i) / T\big)}{\sum_{k=1}^{8} \exp\!\big(s_{1,k}(\mathbf{z}_i) / T\big)} = 0.758
+T^{\ast} = \arg\min_{T \in [0.05, 5.0]} -\frac{1}{|\mathcal{D}_{\text{val}}|} \sum_{(\mathbf{z}_i, y_i) \in \mathcal{D}_{\text{val}}} \log \frac{\exp\big(s_{1,y_i}(\mathbf{z}_i) / T\big)}{\sum_{k=1}^{8} \exp\big(s_{1,k}(\mathbf{z}_i) / T\big)} = 0.758
 $$
 
 Calibrated Stage-1 posteriors are given by:
 
 $$
-P_1(y = c \mid \mathbf{z}) = \text{softmax}\!\left(\frac{\mathbf{s}_1(\mathbf{z})}{T^{\ast}}\right)_c, \quad \text{with Expected Calibration Error } \text{ECE} = 0.0094
+P_1(y = c \mid \mathbf{z}) = \text{softmax}\left(\frac{\mathbf{s}_1(\mathbf{z})}{T^{\ast}}\right)_c, \quad \text{with Expected Calibration Error } \text{ECE} = 0.0094
 $$
 
 #### 2. Confidence Gate and Stage-2 Heterogeneous Specialist Ensemble
@@ -457,7 +457,7 @@ $$
 Let the top predicted probability be:
 
 $$
-\hat{p}_1(\mathbf{z}) = \max_{c \in \{1,\dots,8\}} P_1(y = c \mid \mathbf{z})
+\hat{p}_1(\mathbf{z}) = \max_{c \in \lbrace 1, \dots, 8 \rbrace} P_1(y = c \mid \mathbf{z})
 $$
 
 For a validation-selected confidence threshold of 0.65 (denoted $\tau = 0.65$):
