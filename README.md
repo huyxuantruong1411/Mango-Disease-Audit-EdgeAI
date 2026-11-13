@@ -1,10 +1,30 @@
 # Audit-First, Quality-Gated Two-Stage Framework for Real-Time Mango Leaf Disease Classification on Edge CPUs
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg)](pyproject.toml)
+[![Open Primary v5 Notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb)
+[![Open v8 EDA Notebook in Colab](https://img.shields.io/badge/Colab-Extended_v8_EDA_Notebook-F9AB00?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb)
+[![Primary Submission Artifact](https://img.shields.io/badge/Primary_Submission-Original_Notebook_(v5)-b31b1b.svg)](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb)
 [![Protocol: Locked v5](https://img.shields.io/badge/Experimental_Protocol-Locked_v5_(SEED_20261022)-2ea44f.svg)](scripts/verify_locked_results.py)
 [![Single-Core Latency](https://img.shields.io/badge/Single--Core_CPU_Latency-21.58_ms_(46.3_FPS)-0052CC.svg)](results/tables/Table6_Fair_EndToEnd_CPU_Benchmark.csv)
 [![Model Footprint](https://img.shields.io/badge/Stage--1_Footprint-480.2_KB-6f42c1.svg)](results/models/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+---
+
+## Primary Submission Artifact: Original Executed Colab Notebooks
+
+> [!IMPORTANT]
+> **Canonical Submission File vs. Supporting Repository Materials:**
+> The **complete, self-contained executable research implementation** submitted for evaluation is preserved verbatim in the original Google Colab notebook [`notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) (alongside its extended modular/EDA companion [`notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) and static `.html` exports).
+> All modular source files (`src/mango_edge_cv/`), 16 high-resolution analytical figures (`results/figures/`), LaTeX tables (`paper/`), unit tests, and Markdown documentation in this repository serve as **supporting technical exposition, visual proof, and automated verification** built from these canonical notebooks (`SEED = 20261022`).
+
+| Original Submission File | Description & Role | Executed Scope | Access & View Options |
+| :--- | :--- | :--- | :--- |
+| **[`Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb)** | **Primary Submission Notebook (Core Version 5 Pipeline)** | 44 cells (`Sections 1–17`), full `run_one_track` master execution generating locked Tables 1–7 and `.joblib` models (544 KB) | [GitHub Notebook](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [Open in Colab](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [nbviewer](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) |
+| **[`Agri_EdgeAI_Mango_Research_fixed_v5.html`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html)** | **Static HTML Snapshot of `v5` Submission Notebook** | Self-contained offline browser export with full rendered logs and summary outputs (357 KB) | [HTML Preview](https://htmlpreview.github.io/?https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html) |
+| **[`Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb)** | **Modularized & Extended EDA Executed Notebook (`v8_eda`)** | 252 focused cells using identical `v5` core logic + Section 6.4 full EDA (`MangoLeafBD` & `MLDID`) with **17 embedded PNG plots** (4.74 MB) | [GitHub Notebook](notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [Open in Colab](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [nbviewer (Recommended)](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) |
+| **[`Agri_EdgeAI_Mango_Research_fixed_v8_eda.html`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html)** | **Static HTML Snapshot of `v8_eda` Notebook** | Self-contained offline export preserving all 17 embedded visual plots and Vietnamese/English walkthroughs (4.54 MB) | [HTML Preview](https://htmlpreview.github.io/?https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html) |
+
+> See [`notebooks/README.md`](notebooks/README.md) for the exact section-by-section mapping between notebook sections (`Sections 1–17`) and the supporting modular codebase.
 
 ---
 
@@ -36,6 +56,8 @@ This repository provides the official, bit-for-bit reproducible implementation o
 
 ## Table of Contents
 
+- [Primary Submission Artifact: Original Executed Colab Notebooks](#primary-submission-artifact-original-executed-colab-notebooks)
+- [Abstract](#abstract)
 - [1. System Architecture Overview](#1-system-architecture-overview)
 - [2. Pillar I: Graph-Based Specimen Leakage Audit and Five-View Background Shortcut Analysis](#2-pillar-i-graph-based-specimen-leakage-audit-and-five-view-background-shortcut-analysis)
   - [2.1 Mathematical Formulation of Specimen-Identity Graph Clustering](#21-mathematical-formulation-of-specimen-identity-graph-clustering)
@@ -526,7 +548,7 @@ Field deployment exposes camera sensors to physical degradation (thermal sensor 
   <p><em>Figure 12: Macro-F1 resilience across Gaussian noise levels, central specular glare, and low-light underexposure.</em></p>
 </div>
 
-**Table 5: Multi-Severity Optical Perturbation Robustness Benchmark ([`Table5_Perturbation_Robustness_Benchmark.csv`](results/tables/Table5_Perturbation_Robustness_Benchmark.csv))**
+**Table 5: Multi-Severity Optical Perturbation Robustness Benchmark ([`Table5_MultiSeverity_Robustness.csv`](results/tables/Table5_MultiSeverity_Robustness.csv))**
 
 | Perturbation Regime | Physical Parameter ($\theta$) | Raw Features Macro-F1 | Unconditional CLAHE Macro-F1 | **Proposed Quality-Gated Macro-F1** | Gain vs. Raw ($\Delta\text{F1}$) |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -595,7 +617,7 @@ The image is rotated by $-\theta$ so that the central midrib aligns horizontally
 
 ### 7.2 Quantitative Cross-Dataset Validation and Analysis of Unsupervised CORAL (Table 7)
 
-**Table 7: Cross-Dataset Domain Generalization from `MangoLeafBD` to `MLDID` ([`Table7_Cross_Dataset_MLDID_Generalization.csv`](results/tables/Table7_Cross_Dataset_MLDID_Generalization.csv))**
+**Table 7: Cross-Dataset Domain Generalization from `MangoLeafBD` to `MLDID` ([`Table7_External_Dataset_Validation.csv`](results/tables/Table7_External_Dataset_Validation.csv))**
 
 | Experimental Protocol / Generalization Condition | Test Samples ($N$) | Classes | Accuracy (%) | Macro-Precision | Macro-Recall | Macro-F1 | 95% Bootstrap CI (Macro-F1) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -647,7 +669,7 @@ Figure 16 compares the class-wise median CIE luminance dynamic range and high-fr
 
 Table 8 contrasts our audit-first framework against six recent deep learning studies on mango leaf disease classification (2023–2026). While prior literature focused exclusively on architectural complexity under leaky random splits, our framework is the first to simultaneously enforce specimen disjointness (0.0% leakage), quantify studio background shortcuts, evaluate multi-severity optical robustness, validate external zero-shot generalization across 3,000 field images, and achieve sub-22 ms single-core CPU latency with a 480.2 KB model footprint.
 
-**Table 8: Comprehensive Comparative Benchmark Against Recent Published Literature (2023–2026) ([`Table8_Positioning_Recent_Literature.csv`](results/tables/Table8_Positioning_Recent_Literature.csv))**
+**Table 8: Comprehensive Comparative Benchmark Against Recent Published Literature (2023–2026) ([`Table8_Published_Literature_Comparison.csv`](results/tables/Table8_Published_Literature_Comparison.csv))**
 
 | Study / Reference | Target Architecture | Train/Test Split Protocol | Reported Accuracy | Specimen Leakage Audited? | Studio Shortcut Quantified? | Multi-Severity Robustness? | External Transfer Evaluated? | Single-Core CPU Latency | Model Footprint |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -667,85 +689,101 @@ Table 8 contrasts our audit-first framework against six recent deep learning stu
 
 ```text
 Mango-Disease-Audit-EdgeAI/
+├── notebooks/                                       # PRIMARY SUBMISSION ARTIFACTS
+│   ├── Agri_EdgeAI_Mango_Research_fixed_v5.ipynb    # Canonical core v5 executed Colab notebook (44 cells)
+│   ├── Agri_EdgeAI_Mango_Research_fixed_v5.html     # Static HTML export of core v5 notebook
+│   ├── Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb # Extended modular + EDA notebook (252 cells, 17 PNGs)
+│   ├── Agri_EdgeAI_Mango_Research_fixed_v8_eda.html # Static HTML export of v8 EDA notebook
+│   └── README.md                                    # Section-to-module mapping guide
 ├── configs/
-│   └── default_config.py           # Locked Version 5 constants (SEED=20261022, tau=0.65, etc.)
-├── docs/
-│   ├── DATASET_PREPARATION.md      # Specimen clustering and download instructions
-│   ├── EXPERIMENTAL_RESULTS_V5.md  # Detailed discussion of experimental tables
-│   ├── METHODOLOGY_AND_MATH.md     # Full mathematical formulations and proofs
-│   └── REPRODUCIBILITY_GUIDE.md    # Step-by-step reproduction guide
-├── notebooks/
-│   └── audit_and_benchmarks.ipynb  # Interactive walkthrough of all 6 pillars
-├── paper/
-│   ├── MANUSCRIPT_OUTLINE_AND_DRAFT.md # Academic manuscript draft
-│   ├── references.bib              # Complete BibTeX bibliography
-│   └── tables_latex/               # LaTeX booktabs code for all 8 paper tables
-├── results/
-│   ├── eda/                        # Image geometry, contrast, and sharpness CSVs
-│   ├── figures/                    # 16 high-legibility publication diagrams and plots
-│   ├── manifests/                  # manifest_MANGO_audited.csv (4,000 images, group_ids)
-│   ├── models/                     # Pretrained Stage-1 & Stage-2 joblib model binaries
-│   └── tables/                     # Tables 1 through 8 in verified CSV format
-├── scripts/
-│   ├── export_latex_tables.py      # Generates LaTeX booktabs tables
-│   ├── run_eda_geometry.py         # Executes geometry and EDA analysis
-│   ├── run_full_pipeline_v5.py     # End-to-end training and benchmark reproduction
-│   └── verify_locked_results.py    # Automated 57-check ground-truth verification
-├── src/mango_edge_cv/
-│   ├── __init__.py                 # Package version and public exports
-│   ├── audit.py                    # pHash, HS cosine clustering, 5-view shortcut audit
-│   ├── eda.py                      # Distribution analysis and resolution audits
-│   ├── features.py                 # 7-branch extraction engine with shared Sobel pass
-│   ├── models.py                   # BlockPCACompressor & CalibratedConfidenceGatedSystem
-│   └── preprocessing.py            # Hybrid ROI segmentation & adaptive quality gates
+│   └── mango_v5_default.yaml                        # Locked Version 5 constants (SEED=20261022, tau=0.65)
+├── docs/                                            # Supporting technical exposition & guides
+│   ├── DATASET_PREPARATION.md                       # Specimen clustering and download instructions
+│   ├── EXPERIMENTAL_RESULTS_V5.md                   # Detailed discussion of experimental tables
+│   ├── METHODOLOGY_AND_MATH.md                      # Full mathematical formulations and proofs
+│   └── REPRODUCIBILITY_GUIDE.md                     # Step-by-step reproduction guide
+├── paper/                                           # Manuscript draft & LaTeX table exports
+│   ├── MANUSCRIPT_OUTLINE_AND_DRAFT.md              # Academic manuscript draft
+│   ├── references.bib                               # Complete BibTeX bibliography
+│   └── tables_latex/                                # LaTeX booktabs code for Tables 1–8
+├── results/                                         # Verified outputs & pretrained artifacts
+│   ├── eda/                                         # Image geometry, contrast, and sharpness CSVs
+│   ├── figures/                                     # 16+ high-legibility publication diagrams & EDA plots
+│   ├── manifests/                                   # manifest_MANGO_audited.csv (4,000 images, group_ids)
+│   ├── models/                                      # proposed_stage1_lr.joblib & proposed_twostage_gated.joblib
+│   └── tables/                                      # Tables 1 through 8 in verified CSV format
+├── scripts/                                         # Verification, CLI inference, & figure/table generators
+│   ├── check_markdown_syntax.py                     # Automated Markdown & MathJax compatibility check
+│   ├── generate_paper_assets.py                     # Generates LaTeX booktabs tables & analytical charts
+│   ├── predict_single_image.py                      # Single-image CPU inference & routing CLI
+│   ├── render_publication_diagrams.py               # Renders high-DPI architectural & proof figures
+│   ├── run_full_pipeline.py                         # Master CLI runner (verify-only or raw dataset run)
+│   └── verify_locked_results.py                     # Automated 57-check ground-truth verification
+├── src/mango_edge_cv/                               # Supporting modular Python package extracted from notebook
+│   ├── __init__.py                                  # Package version and public exports
+│   ├── audit.py                                     # pHash, HS cosine clustering, 5-view shortcut audit
+│   ├── config.py                                    # Locked seed, class lists, feature contracts
+│   ├── eda.py                                       # Distribution analysis and resolution audits
+│   ├── evaluation.py                                # Bootstrap CI, McNemar test, ECE, AURC, CPU benchmark
+│   ├── features.py                                  # 7-branch extraction engine with shared Sobel pass
+│   ├── models.py                                    # BlockPCACompressor & CalibratedConfidenceGatedSystem
+│   ├── preprocessing.py                             # Hybrid ROI segmentation & adaptive quality gates
+│   └── visualization.py                             # Publication plotting utilities
 ├── tests/
-│   └── test_pipeline_smoke.py      # 6 automated pytest unit and integration tests
-├── CITATION.cff                    # Citation metadata
-├── LICENSE                         # MIT License
-├── pyproject.toml                  # Modern PEP 621 build configuration
-├── README.md                       # Comprehensive repository documentation
-└── requirements.txt                # Pinned production dependencies
+│   └── test_pipeline_smoke.py                       # 6 automated pytest unit and integration tests
+├── CITATION.cff                                     # Citation metadata
+├── LICENSE                                          # MIT License
+├── pyproject.toml                                   # Modern PEP 621 build configuration
+├── README.md                                        # Comprehensive repository overview
+└── requirements.txt                                 # Pinned production dependencies
 ```
 
 ### 10.2 Installation and Verification Quickstart
 
-#### 1. Clone the repository and install in editable mode
+#### 1. Open or Download the Original Submission Notebook (Fastest)
+
+To inspect or re-run the exact notebook submitted for evaluation in Google Colab:
+- **Core Version 5 Pipeline:** [`notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) ([Open in Colab](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb))
+- **Modular + Extended EDA Companion:** [`notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`](notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) ([nbviewer](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb))
+
+#### 2. Clone the supporting repository and install in editable mode
 
 ```bash
 git clone https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI.git
 cd Mango-Disease-Audit-EdgeAI
+pip install -r requirements.txt
 pip install -e .
 ```
 
-#### 2. Verify all 57 locked Version 5 experimental metrics
+#### 3. Verify all 57 locked Version 5 experimental metrics
 
 ```bash
 python scripts/verify_locked_results.py
 ```
 Expected output: `Summary: 57/57 checks passed.`
 
-#### 3. Run the automated unit test suite
+#### 4. Run the automated unit test suite
 
 ```bash
 pytest tests/ -v
 ```
-Expected output: `6 passed, 1 warning in ~8s`
+Expected output: `6 passed`
 
-#### 4. Run single-image CLI inference
+#### 5. Run single-image CLI inference
 
 ```bash
-# Evaluate on a real leaf image
-python -m mango_edge_cv.models --image path/to/leaf.jpg --model results/models/stage1_block_pca_lr.joblib
-
 # Evaluate on synthetic test specimen
-python -m mango_edge_cv.models --test-synthetic
+python scripts/predict_single_image.py --synthetic-demo
+
+# Evaluate on a real leaf image using the pretrained two-stage gated bundle
+python scripts/predict_single_image.py --image path/to/leaf.jpg --model results/models/proposed_twostage_gated.joblib --tau 0.65
 ```
 
-#### 5. Regenerate all LaTeX booktabs tables and figures
+#### 6. Regenerate all LaTeX booktabs tables and publication figures
 
 ```bash
-python scripts/export_latex_tables.py
-python scripts/run_eda_geometry.py
+python scripts/generate_paper_assets.py
+python scripts/render_publication_diagrams.py
 ```
 
 ---

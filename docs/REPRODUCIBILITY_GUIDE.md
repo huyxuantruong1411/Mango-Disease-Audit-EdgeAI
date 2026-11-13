@@ -2,6 +2,16 @@
 
 This repository enforces deterministic execution (`SEED = 20261022`) across specimen-cluster auditing, train/val/test group partitioning, feature extraction, Block-PCA projection, temperature scaling, bootstrap confidence intervals ($B = 1,000$), and exact McNemar hypothesis testing.
 
+> [!NOTE]
+> **Original Submission Notebooks vs. Modular CLI:** The canonical end-to-end study was executed in Google Colab inside [`../notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) (and its modularized EDA companion [`../notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb)). The modular scripts below allow rapid offline verification and figure/table regeneration outside Google Colab.
+
+---
+
+## 0. Original Executed Google Colab Notebooks (Canonical Artifact)
+
+1. **Core Version 5 Pipeline:** [`../notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) ([Open in Colab](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [Static HTML Snapshot](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html))
+2. **Modular + Extended EDA Companion (`v8_eda`, `v5` logic):** [`../notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) ([Open in Colab](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [nbviewer](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [Static HTML Snapshot](../notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html))
+
 ---
 
 ## 1. Environment Installation
@@ -25,7 +35,7 @@ python scripts/verify_locked_results.py
 
 Expected output:
 ```text
-ALL 57 LOCKED VERSION 5 (v5) GROUND-TRUTH CHECKS PASSED SUCCESSFULLY.
+Summary: 57/57 checks passed.
 ```
 
 ---
@@ -49,7 +59,7 @@ Evaluate the pretrained Two-Stage Confidence-Gated model on any RGB image file o
 python scripts/predict_single_image.py --synthetic-demo
 
 # Real mango leaf image inference with custom gate threshold
-python scripts/predict_single_image.py --image "path/to/leaf.jpg" --tau-gate 0.65 --canonical-pose
+python scripts/predict_single_image.py --image "path/to/leaf.jpg" --tau 0.65 --canonical-pose
 ```
 
 ---

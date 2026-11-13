@@ -1,0 +1,32 @@
+# Primary Submission Notebooks (Original Executed Colab Artifacts)
+
+> [!IMPORTANT]
+> **Canonical Research Artifact Notice:** The Google Colab notebooks archived in this directory contain the **complete, end-to-end executable implementation** submitted with this research study (`SEED = 20261022`, locked Version 5 protocol). All modular Python packages ([`../src/mango_edge_cv/`](../src/mango_edge_cv/)), 16 analytical figures ([`../results/figures/`](../results/figures/)), CSV tables, LaTeX assets, and unit tests in this repository serve as supporting documentation, visual proofs, and automated verification for these notebooks.
+
+---
+
+## Inventory of Original Submission Files
+
+| Artifact | Role in Submission | Structure & Outputs | GitHub / Viewer Links | Cloud Execution / Download |
+| :--- | :--- | :--- | :--- | :--- |
+| **`Agri_EdgeAI_Mango_Research_fixed_v5.ipynb`** | **Primary Submission Notebook (Core Executed Version 5 Pipeline)** | 44 cells (19 Markdown, 25 Code); full end-to-end runner (`Sections 1–17`), locked Tables 1–7, statistical tests, and pretrained models | [View on GitHub](Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [nbviewer](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.ipynb) |
+| **`Agri_EdgeAI_Mango_Research_fixed_v5.html`** | **Static Executed Snapshot of `v5` Notebook** | Self-contained HTML render of all executed outputs and summary tables (357 KB) | [View HTML Preview](https://htmlpreview.github.io/?https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html) · [Raw HTML](Agri_EdgeAI_Mango_Research_fixed_v5.html) | [Download HTML](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v5.html) |
+| **`Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb`** | **Extended Modular & EDA Executed Notebook (`v8_eda`, identical `v5` logic)** | 252 modularized cells (140 Markdown, 112 Code); integrates Section 6.4 Exploratory Data Analysis (`MangoLeafBD` + `MLDID`) with **17 embedded PNG figures** | [View on GitHub](Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [nbviewer (Recommended)](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) · [Raw Download](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb) |
+| **`Agri_EdgeAI_Mango_Research_fixed_v8_eda.html`** | **Static Executed Snapshot of `v8_eda` Notebook** | Self-contained HTML export preserving all 17 embedded visual plots and Markdown explanations (4.54 MB) | [View HTML Preview](https://htmlpreview.github.io/?https://github.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html) · [Raw HTML](Agri_EdgeAI_Mango_Research_fixed_v8_eda.html) | [Download HTML](https://raw.githubusercontent.com/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.html) |
+
+> [!NOTE]
+> Because `Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb` embeds 17 high-resolution output plots (~4.74 MB), GitHub's inline `.ipynb` renderer may occasionally display a timeout notice. Use **[nbviewer](https://nbviewer.org/github/huyxuantruong1411/Mango-Disease-Audit-EdgeAI/blob/main/notebooks/Agri_EdgeAI_Mango_Research_fixed_v8_eda.ipynb)**, **Open in Colab**, or the companion **HTML snapshot** for instant, uninterrupted viewing.
+
+---
+
+## Mapping Notebook Sections to Supporting Repository Modules
+
+| Notebook Section(s) | Experimental Scope | Supporting Repository Module | Verified Outputs |
+| :--- | :--- | :--- | :--- |
+| Sections 1–5 | Drive workspace, runtime seeding (`20261022`), SSD staging, dataset mapping | [`src/mango_edge_cv/config.py`](../src/mango_edge_cv/config.py) | [`configs/mango_v5_default.yaml`](../configs/mango_v5_default.yaml) |
+| Section 6 (`6.1–6.3`, `8`) | 2D-DCT `pHash-64` + HSV cosine clustering, `StratifiedGroupKFold`, 5-view shortcut audit | [`src/mango_edge_cv/audit.py`](../src/mango_edge_cv/audit.py) | `Table1`, `Table2`, [`manifest_MANGO_audited.csv`](../results/manifests/manifest_MANGO_audited.csv) |
+| Section `6.4` (`v8_eda`) | Geometry, resolution confounding, color & contrast EDA (`MangoLeafBD` & `MLDID`) | [`src/mango_edge_cv/eda.py`](../src/mango_edge_cv/eda.py) | [`results/eda/*.csv`](../results/eda/), [`Fig15`](../results/figures/Fig15_EDA_MangoLeafBD_EightClass_Specimens_and_Geometry.png)–[`Fig16`](../results/figures/Fig16_EDA_CrossDataset_Distribution_Shift_MangoLeafBD_vs_MLDID.png) |
+| Sections 7 & 9 | Hybrid ROI segmentation, MAD/glare/CLAHE gates, 7-branch feature extraction (`2,003D`) | [`preprocessing.py`](../src/mango_edge_cv/preprocessing.py), [`features.py`](../src/mango_edge_cv/features.py) | [`Fig05`](../results/figures/Fig05_Hybrid_ROI_Segmentation_StepByStep.png)–[`Fig07b`](../results/figures/Fig07b_Feature_Block_Attribution.png) |
+| Sections 10–11 | Energy-balanced `BlockPCACompressor` (`303D`), Stage-1 LR ($T^{\ast}=0.758$), Stage-2 ensemble | [`src/mango_edge_cv/models.py`](../src/mango_edge_cv/models.py) | `Table3`, `Table4`, [`results/models/*.joblib`](../results/models/) |
+| Sections 12–14 | Multi-severity perturbation suite, single-core CPU & CNN benchmarks, canonical pose & Block-CORAL on `MLDID` | [`src/mango_edge_cv/evaluation.py`](../src/mango_edge_cv/evaluation.py) | `Table5`, `Table6`, `Table7` |
+| Sections 15–17 | Summary figures, master execution track (`run_one_track`), artifact export | [`src/mango_edge_cv/visualization.py`](../src/mango_edge_cv/visualization.py) | [`results/figures/`](../results/figures/) |

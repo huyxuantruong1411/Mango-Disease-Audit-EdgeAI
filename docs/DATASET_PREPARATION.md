@@ -41,7 +41,7 @@ A critical finding of our Exploratory Data Analysis (`src/mango_edge_cv/eda.py`)
 
 Note that **you do not need the raw image folders to verify the locked Version 5 results or run inference demos**, because the repository already ships with the audited manifest ([`results/manifests/manifest_MANGO_audited.csv`](../results/manifests/manifest_MANGO_audited.csv)), all locked CSV tables ([`results/tables/`](../results/tables/)), and the pretrained `joblib` models ([`results/models/`](../results/models/)).
 
-To re-extract all $7,000$ images from scratch via [`scripts/run_full_audit_and_ablation.py`](../scripts/run_full_audit_and_ablation.py), place the raw datasets at:
+To re-extract all $7,000$ images from scratch via [`scripts/run_full_pipeline.py`](../scripts/run_full_pipeline.py), place the raw datasets at:
 
 ```text
 data/
